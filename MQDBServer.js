@@ -1,6 +1,7 @@
 var amqp = require('amqp');
 var util = require('util');
 var user = require('./services/user');
+var groups = require('./services/groups');
 var connection = amqp.createConnection({host:'localhost'});
 
 connection.on('ready', function() {
@@ -259,6 +260,227 @@ connection.on('ready', function() {
 			});
 		});
 		console.log("updateProfilePicture Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('unFriendUserRequest', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			user.unFriendUserRequest(message, function(err,res){
+				console.log("unFriendUserRequest Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("unFriendUserRequest Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('renderGroupsPage', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.renderGroupsPage(message, function(err,res){
+				console.log("renderGroupsPage Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("renderGroupsPage Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('loadAllGroups', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.loadAllGroups(message, function(err,res){
+				console.log("loadAllGroups Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("loadAllGroups Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('loadMyGroups', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.loadMyGroups(message, function(err,res){
+				console.log("loadMyGroups Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("loadMyGroups Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('addUserToGroup', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.addUserToGroup(message, function(err,res){
+				console.log("addUserToGroup Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("addUserToGroup Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('removeUserFromGroup', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.removeUserFromGroup(message, function(err,res){
+				console.log("removeUserFromGroup Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("removeUserFromGroup Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('createGroup', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.createGroup(message, function(err,res){
+				console.log("createGroup Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("createGroup Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('navToGroupDetailPage', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.navToGroupDetailPage(message, function(err,res){
+				console.log("navToGroupDetailPage Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("navToGroupDetailPage Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('getGroupDetails', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.getGroupDetails(message, function(err,res){
+				console.log("getGroupDetails Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("getGroupDetails Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('getGroupUserList', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.getGroupUserList(message, function(err,res){
+				console.log("getGroupUserList Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("getGroupUserList Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('getGroupNonMembers', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.getGroupNonMembers(message, function(err,res){
+				console.log("getGroupNonMembers Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("getGroupNonMembers Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('addUserToGroupAdmin', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.addUserToGroupAdmin(message, function(err,res){
+				console.log("addUserToGroupAdmin Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("addUserToGroupAdmin Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('removeUserFromGroupAdmin', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.removeUserFromGroupAdmin(message, function(err,res){
+				console.log("removeUserFromGroupAdmin Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("removeUserFromGroupAdmin Queue Created!!! and listening to the Queue!");
 	});
 	
 });

@@ -635,10 +635,8 @@ function updateFRIENDSLIST(row_id,path,callback){
 	coll.updateMany({USER2:row_id}, {$set: { "IMAGE_URL": path }}, function(err,response){
 		console.log("updateFRIENDSLIST Updated : " + JSON.stringify(response));
 		callback();
-	})
-	//USER2
+	});
 }
-
 
 exports.updateProfilePicture = function(msg, callback){
 	console.log("--------------------------updateProfilePicture----------------------------");
@@ -653,14 +651,52 @@ exports.updateProfilePicture = function(msg, callback){
 			firendsdetails1: async.apply(updateFRIENDSLIST,row_id,path)
 		  }, function (error, results) {
 		    if (error) {
-		    	console.log("updateProfilePicture - Error : " + error);
+		    	console.log("unFriendUserRequest - Error : " + error);
 		    	//Unknown Error
 				res.code = "401";
 				callback(error, res);
 		    }else{
-			    console.log("updateProfilePicture -- : Response Sent : " + JSON.stringify(res));
+			    console.log("unFriendUserRequest -- : Response Sent : " + JSON.stringify(res));
 			    res.code = "200";
-			    //res.content = self.UserInfo;
+			    callback(error, res);
+		    }
+		});
+	});
+};
+
+function deleteFriendRequest(user1,user2,callback){
+	var coll = mongo.collection('USERS');
+	coll.deleteOne({USER1:user1,USER2:user2}, function(err,result){
+		callback();
+	});
+}
+
+function deleteOtherFriendRequest(user1,user2,callback){
+	var coll = mongo.collection('USERS');
+	coll.deleteOne({USER1:user2,USER2:user1}, function(err,result){
+		callback();
+	});
+}
+
+exports.unFriendUserRequest = function(msg, callback){
+	console.log("--------------------------unFriendUserRequest----------------------------");
+	console.log("unFriendUserRequest Request : " + JSON.stringify(msg));
+	var res = {};
+	var user1 = msg.ROW_ID;
+	var user2 = msg.friendid;
+	mongo.connect(mongoURL, function(){
+		async.series({
+			friendId: async.apply(deleteFriendRequest,user1,user2),
+			firendsdetails: async.apply(deleteOtherFriendRequest,user1,user2)
+		  }, function (error, results) {
+		    if (error) {
+		    	console.log("unFriendUserRequest - Error : " + error);
+		    	//Unknown Error
+				res.code = "401";
+				callback(error, res);
+		    }else{
+			    console.log("unFriendUserRequest -- : Response Sent : " + JSON.stringify(res));
+			    res.code = "200";
 			    callback(error, res);
 		    }
 		});

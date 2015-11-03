@@ -483,4 +483,60 @@ connection.on('ready', function() {
 		console.log("removeUserFromGroupAdmin Queue Created!!! and listening to the Queue!");
 	});
 	
+	connection.queue('deleteGroup', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			groups.deleteGroup(message, function(err,res){
+				console.log("deleteGroup Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("deleteGroup Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('navToFriendDetailPage', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			user.navToFriendDetailPage(message, function(err,res){
+				console.log("navToFriendDetailPage Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("navToFriendDetailPage Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('getFriendDetails', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			try{
+				util.log(util.format( deliveryInfo.routingKey, message));
+				util.log("Message: "+JSON.stringify(message));
+				util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+				user.getFriendDetails(message, function(err,res){
+					console.log("getFriendDetails Response : " + JSON.stringify(res));
+					connection.publish(messageHeader.replyTo, res, {
+						contentType:'application/json',
+						contentEncoding:'utf-8',
+						correlationId:messageHeader.correlationId
+					});
+				});
+			}
+			catch(e){
+				console.log(e);
+			}
+		});
+		console.log("getFriendDetails Queue Created!!! and listening to the Queue!");
+	});
+	
 });

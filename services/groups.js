@@ -58,7 +58,7 @@ exports.renderGroupsPage = function(msg, callback){
 			});
 		});
 	}catch(e){
-		console.log(e);
+		console.log("renderGroupsPage : Error : " + e);
 	}
 };
 
@@ -92,33 +92,37 @@ function getAllGroupDetails(callback){
 }
 
 exports.loadAllGroups = function(msg, callback){
-	console.log("-----------------loadAllGroups-------------------------------------");
-	var res = {};
-	var ROW_ID = msg.ROW_ID;
-	self.groupIdArray = [];
-	
-	mongo.connect(mongoURL, function(){ 
-		console.log('loadAllGroups Connected to mongo at: ' + mongoURL);
+	try{
+		console.log("-----------------loadAllGroups-------------------------------------");
+		var res = {};
+		var ROW_ID = msg.ROW_ID;
+		self.groupIdArray = [];
 		
-		async.series({
-			friendId: async.apply(getGroupIds, ROW_ID),
-			firendsdetails: getAllGroupDetails
-		  }, function (error, results) {
-		    if (error) {
-		    	console.log("loadAllGroups Error : " + error);
-		    	//Unknown Error
-				res.code = "401";
-				
-				callback(error, res);
-		    }else{
-			    console.log("loadAllGroups results : " + JSON.stringify(results));
-			    console.log("loadAllGroups groupIds : " + JSON.stringify(self.groupIds));
-			    res.code = "200";
-			    res.content  = self.groups;
-			    callback(error, res);
-		    }
+		mongo.connect(mongoURL, function(){ 
+			console.log('loadAllGroups Connected to mongo at: ' + mongoURL);
+			
+			async.series({
+				friendId: async.apply(getGroupIds, ROW_ID),
+				firendsdetails: getAllGroupDetails
+			  }, function (error, results) {
+			    if (error) {
+			    	console.log("loadAllGroups Error : " + error);
+			    	//Unknown Error
+					res.code = "401";
+					
+					callback(error, res);
+			    }else{
+				    console.log("loadAllGroups results : " + JSON.stringify(results));
+				    console.log("loadAllGroups groupIds : " + JSON.stringify(self.groupIds));
+				    res.code = "200";
+				    res.content  = self.groups;
+				    callback(error, res);
+			    }
+			});
 		});
-	});
+	}catch(e){
+		console.log("loadAllGroups : Error : " + e);
+	}
 };
 
 var mygroupIdArray = [];
@@ -150,157 +154,181 @@ function getMyGroupDetails(callback){
 }
 
 exports.loadMyGroups = function(msg, callback){
-	console.log("-----------------loadMyGroups-------------------------------------");
-	var res = {};
-	var ROW_ID = msg.ROW_ID;
-	self.mygroupIdArray = [];
-	
-	mongo.connect(mongoURL, function(){ 
-		console.log('loadMyGroups Connected to mongo at: ' + mongoURL);
+	try{
+		console.log("-----------------loadMyGroups-------------------------------------");
+		var res = {};
+		var ROW_ID = msg.ROW_ID;
+		self.mygroupIdArray = [];
 		
-		async.series({
-			friendId: async.apply(getMyGroupIds, ROW_ID),
-			firendsdetails: getMyGroupDetails
-		  }, function (error, results) {
-		    if (error) {
-		    	console.log("loadMyGroups Error : " + error);
-		    	//Unknown Error
-				res.code = "401";
-				callback(error, res);
-		    }else{
-			    console.log("loadMyGroups results : " + JSON.stringify(results));
-			    console.log("loadMyGroups mygroupIds : " + JSON.stringify(self.mygroupIds));
-			    res.code = "200";
-			    res.content  = self.mygroups;
-			    callback(error, res);
-		    }
+		mongo.connect(mongoURL, function(){ 
+			console.log('loadMyGroups Connected to mongo at: ' + mongoURL);
+			
+			async.series({
+				friendId: async.apply(getMyGroupIds, ROW_ID),
+				firendsdetails: getMyGroupDetails
+			  }, function (error, results) {
+			    if (error) {
+			    	console.log("loadMyGroups Error : " + error);
+			    	//Unknown Error
+					res.code = "401";
+					callback(error, res);
+			    }else{
+				    console.log("loadMyGroups results : " + JSON.stringify(results));
+				    console.log("loadMyGroups mygroupIds : " + JSON.stringify(self.mygroupIds));
+				    res.code = "200";
+				    res.content  = self.mygroups;
+				    callback(error, res);
+			    }
+			});
 		});
-	});
+	}catch(e){
+		console.log("loadMyGroups : Error : " + e);
+	}
 };
 
 exports.addUserToGroup = function(msg, callback){
-	console.log("--------------------------addUserToGroup----------------------------");
-	console.log("addUserToGroup Request : " + JSON.stringify(msg));
-	var res = {};
-	var GROUP_ID = msg.ROW_ID;
-	var USER_ID = msg.USER_ID;
-	mongo.connect(mongoURL, function(){
-		var coll = mongo.collection('GROUP_USERS');
-		coll.insertOne({GROUP_ID:GROUP_ID,USER_ID:USER_ID}, function(err,user){
-			console.log("addUserToGroup Inserted : " + JSON.stringify(user));
-			if(!err){
-				res.code = "200";
-				callback(err, res);
-			}else{
-				//Unknown Error
-				res.code = "401";
-				res.err  = err;
-				callback(err, res);
-			}
+	try{
+		console.log("--------------------------addUserToGroup----------------------------");
+		console.log("addUserToGroup Request : " + JSON.stringify(msg));
+		var res = {};
+		var GROUP_ID = msg.ROW_ID;
+		var USER_ID = msg.USER_ID;
+		mongo.connect(mongoURL, function(){
+			var coll = mongo.collection('GROUP_USERS');
+			coll.insertOne({GROUP_ID:GROUP_ID,USER_ID:USER_ID}, function(err,user){
+				console.log("addUserToGroup Inserted : " + JSON.stringify(user));
+				if(!err){
+					res.code = "200";
+					callback(err, res);
+				}else{
+					//Unknown Error
+					res.code = "401";
+					res.err  = err;
+					callback(err, res);
+				}
+			});
 		});
-	});
+	}catch(e){
+		console.log("addUserToGroup : Error : " + e);
+	}
 };
 
 exports.removeUserFromGroup = function(msg, callback){
-	console.log("--------------------------removeUserFromGroup----------------------------");
-	console.log("removeUserFromGroup Request : " + JSON.stringify(msg));
-	var res = {};
-	var GROUP_ID = msg.ROW_ID;
-	var USER_ID = msg.USER_ID;
-	mongo.connect(mongoURL, function(){
-		var coll = mongo.collection('GROUP_USERS');
-		coll.deleteOne({GROUP_ID:GROUP_ID,USER_ID:USER_ID}, function(err,user){
-			console.log("removeUserFromGroup deleted : " + JSON.stringify(user));
-			if(!err){
-				res.code = "200";
-				callback(err, res);
-			}else{
-				//Unknown Error
-				res.code = "401";
-				res.err  = err;
-				callback(err, res);
-			}
+	try{
+		console.log("--------------------------removeUserFromGroup----------------------------");
+		console.log("removeUserFromGroup Request : " + JSON.stringify(msg));
+		var res = {};
+		var GROUP_ID = msg.ROW_ID;
+		var USER_ID = msg.USER_ID;
+		mongo.connect(mongoURL, function(){
+			var coll = mongo.collection('GROUP_USERS');
+			coll.deleteOne({GROUP_ID:GROUP_ID,USER_ID:USER_ID}, function(err,user){
+				console.log("removeUserFromGroup deleted : " + JSON.stringify(user));
+				if(!err){
+					res.code = "200";
+					callback(err, res);
+				}else{
+					//Unknown Error
+					res.code = "401";
+					res.err  = err;
+					callback(err, res);
+				}
+			});
 		});
-	});
+	}catch(e){
+		console.log("removeUserFromGroup : Error : " + e);
+	}
 };
 
 exports.createGroup = function(msg, callback){
-	console.log("--------------------------createGroup----------------------------");
-	console.log("createGroup Request : " + JSON.stringify(msg));
-	var res = {};
-	var GROUP_NAME = msg.GROUP_NAME;
-	var GROUP_INFO = msg.GROUP_INFO;
-	var IMAGE_URL = msg.IMAGE_URL;
-	var CREATED_BY = msg.CREATED_BY;
-	mongo.connect(mongoURL, function(){
-		var coll = mongo.collection('GROUPS');
-		coll.insert({ROW_ID:"",GROUP_NAME:GROUP_NAME,GROUP_INFO:GROUP_INFO,IMAGE_URL:IMAGE_URL,CREATED_BY:CREATED_BY}, function(err,group){
-			console.log("createGroup Inserted : " + JSON.stringify(group));
-			if(!err){
-				var insertedIds = group.insertedIds;
-				coll.updateOne({"_id": new ObjectId(insertedIds[0])}, {$set: { "ROW_ID": insertedIds[0] }}, function(err,response){
-					var collGrpUser = mongo.collection('GROUP_USERS');
-					collGrpUser.insertOne({GROUP_ID:insertedIds[0].toString(),USER_ID:CREATED_BY}, function(err,user){
-						res.code = "200";
-						callback(err, res);
+	try{
+		console.log("--------------------------createGroup----------------------------");
+		console.log("createGroup Request : " + JSON.stringify(msg));
+		var res = {};
+		var GROUP_NAME = msg.GROUP_NAME;
+		var GROUP_INFO = msg.GROUP_INFO;
+		var IMAGE_URL = msg.IMAGE_URL;
+		var CREATED_BY = msg.CREATED_BY;
+		mongo.connect(mongoURL, function(){
+			var coll = mongo.collection('GROUPS');
+			coll.insert({ROW_ID:"",GROUP_NAME:GROUP_NAME,GROUP_INFO:GROUP_INFO,IMAGE_URL:IMAGE_URL,CREATED_BY:CREATED_BY}, function(err,group){
+				console.log("createGroup Inserted : " + JSON.stringify(group));
+				if(!err){
+					var insertedIds = group.insertedIds;
+					coll.updateOne({"_id": new ObjectId(insertedIds[0])}, {$set: { "ROW_ID": insertedIds[0] }}, function(err,response){
+						var collGrpUser = mongo.collection('GROUP_USERS');
+						collGrpUser.insertOne({GROUP_ID:insertedIds[0].toString(),USER_ID:CREATED_BY}, function(err,user){
+							res.code = "200";
+							callback(err, res);
+						});
 					});
-				});
-			}else{
-				//Unknown Error
-				res.code = "401";
-				res.err  = err;
-				callback(err, res);
-			}
+				}else{
+					//Unknown Error
+					res.code = "401";
+					res.err  = err;
+					callback(err, res);
+				}
+			});
 		});
-	});
+	}catch(e){
+		console.log("createGroup : Error : " + e);
+	}
 };
 
 exports.navToGroupDetailPage = function(msg, callback){
-	console.log("--------------------------createGroup----------------------------");
-	console.log("navToGroupDetailPage Request : " + JSON.stringify(msg));
-	var res = {};
-	var ROW_ID = msg.ROW_ID;
-	mongo.connect(mongoURL, function(){
-		var coll = mongo.collection('USERS');
-		coll.findOne( {"_id" : new ObjectId(ROW_ID) },function(err,user){
-			console.log("navToGroupDetailPage result : " + JSON.stringify(user));
-			if(!err){
-				res.code = "200";
-				res.content = user;
-				callback(err, res);
-			}else{
-				//Unknown Error
-				res.code = "401";
-				res.err  = err;
-				callback(err, res);
-			}
+	try{
+		console.log("--------------------------createGroup----------------------------");
+		console.log("navToGroupDetailPage Request : " + JSON.stringify(msg));
+		var res = {};
+		var ROW_ID = msg.ROW_ID;
+		mongo.connect(mongoURL, function(){
+			var coll = mongo.collection('USERS');
+			coll.findOne( {"_id" : new ObjectId(ROW_ID) },function(err,user){
+				console.log("navToGroupDetailPage result : " + JSON.stringify(user));
+				if(!err){
+					res.code = "200";
+					res.content = user;
+					callback(err, res);
+				}else{
+					//Unknown Error
+					res.code = "401";
+					res.err  = err;
+					callback(err, res);
+				}
+			});
 		});
-	});
+	}catch(e){
+		console.log("navToGroupDetailPage : Error : " + e);
+	}
 };
 
 exports.getGroupDetails = function(msg, callback){
-	console.log("--------------------------getGroupDetails----------------------------");
-	console.log("getGroupDetails Request : " + JSON.stringify(msg));
-	var res = {};
-	var groupid = msg.groupid;
-	var grouparr = [];
-	mongo.connect(mongoURL, function(){
-		var coll = mongo.collection('GROUPS');
-		coll.findOne( {"_id" : new ObjectId(groupid) },function(err,GROUPS){
-			console.log("getGroupDetails result : " + JSON.stringify(GROUPS));
-			if(!err){
-				res.code = "200";
-				grouparr.push(GROUPS);
-				res.content = grouparr;
-				callback(err, res);
-			}else{
-				//Unknown Error
-				res.code = "401";
-				res.err  = err;
-				callback(err, res);
-			}
+	try{
+		console.log("--------------------------getGroupDetails----------------------------");
+		console.log("getGroupDetails Request : " + JSON.stringify(msg));
+		var res = {};
+		var groupid = msg.groupid;
+		var grouparr = [];
+		mongo.connect(mongoURL, function(){
+			var coll = mongo.collection('GROUPS');
+			coll.findOne( {"_id" : new ObjectId(groupid) },function(err,GROUPS){
+				console.log("getGroupDetails result : " + JSON.stringify(GROUPS));
+				if(!err){
+					res.code = "200";
+					grouparr.push(GROUPS);
+					res.content = grouparr;
+					callback(err, res);
+				}else{
+					//Unknown Error
+					res.code = "401";
+					res.err  = err;
+					callback(err, res);
+				}
+			});
 		});
-	});
+	}catch(e){
+		console.log("getGroupDetails : Error : " + e);
+	}
 };
 
 var userIds;
@@ -330,31 +358,35 @@ function getUserDetailsforAllMembers(groupid,callback){
 }
 
 exports.getGroupUserList = function(msg, callback){
-	console.log("--------------------------getGroupUserList----------------------------");
-	console.log("getGroupUserList Request : " + JSON.stringify(msg));
-	var res = {};
-	var groupid = msg.groupid;
-	self.GrpUserArray = [];
-	self.userIds = {};
-	mongo.connect(mongoURL, function(){
-		async.series({
-			friendId: async.apply(findAllUsersInGroup, groupid),
-			firendsdetails: async.apply(getUserDetailsforAllMembers,groupid)
-		  }, function (error, results) {
-		    if (error) {
-		    	console.log("getGroupUserList Error : " + error);
-		    	//Unknown Error
-				res.code = "401";
-				callback(error, res);
-		    }else{
-			    console.log("getGroupUserList results : " + JSON.stringify(results));
-			    console.log("getGroupUserList mygroupIds : " + JSON.stringify(self.userslist));
-			    res.code = "200";
-			    res.content  = self.userslist;
-			    callback(error, res);
-		    }
+	try{
+		console.log("--------------------------getGroupUserList----------------------------");
+		console.log("getGroupUserList Request : " + JSON.stringify(msg));
+		var res = {};
+		var groupid = msg.groupid;
+		self.GrpUserArray = [];
+		self.userIds = {};
+		mongo.connect(mongoURL, function(){
+			async.series({
+				friendId: async.apply(findAllUsersInGroup, groupid),
+				firendsdetails: async.apply(getUserDetailsforAllMembers,groupid)
+			  }, function (error, results) {
+			    if (error) {
+			    	console.log("getGroupUserList Error : " + error);
+			    	//Unknown Error
+					res.code = "401";
+					callback(error, res);
+			    }else{
+				    console.log("getGroupUserList results : " + JSON.stringify(results));
+				    console.log("getGroupUserList mygroupIds : " + JSON.stringify(self.userslist));
+				    res.code = "200";
+				    res.content  = self.userslist;
+				    callback(error, res);
+			    }
+			});
 		});
-	});
+	}catch(e){
+		console.log("getGroupUserList : Error : " + e);
+	}
 };
 
 var newuserIds;
@@ -384,75 +416,132 @@ function getUserDetailsforNewMembers(groupid,callback){
 }
 
 exports.getGroupNonMembers = function(msg, callback){
-	console.log("--------------------------getGroupNonMembers----------------------------");
-	console.log("getGroupNonMembers Request : " + JSON.stringify(msg));
-	var res = {};
-	var groupid = msg.groupid;
-	self.NewGrpUserArray = [];
-	self.newuserIds = {};
-	mongo.connect(mongoURL, function(){
-		async.series({
-			friendId: async.apply(findNewUsersInGroup, groupid),
-			firendsdetails: async.apply(getUserDetailsforNewMembers,groupid)
-		  }, function (error, results) {
-		    if (error) {
-		    	console.log("getGroupNonMembers Error : " + error);
-		    	//Unknown Error
-				res.code = "401";
-				callback(error, res);
-		    }else{
-			    console.log("getGroupNonMembers results : " + JSON.stringify(results));
-			    console.log("getGroupNonMembers mygroupIds : " + JSON.stringify(self.newuserslist));
-			    res.code = "200";
-			    res.content  = self.newuserslist;
-			    callback(error, res);
-		    }
+	try{
+		console.log("--------------------------getGroupNonMembers----------------------------");
+		console.log("getGroupNonMembers Request : " + JSON.stringify(msg));
+		var res = {};
+		var groupid = msg.groupid;
+		self.NewGrpUserArray = [];
+		self.newuserIds = {};
+		mongo.connect(mongoURL, function(){
+			async.series({
+				friendId: async.apply(findNewUsersInGroup, groupid),
+				firendsdetails: async.apply(getUserDetailsforNewMembers,groupid)
+			  }, function (error, results) {
+			    if (error) {
+			    	console.log("getGroupNonMembers Error : " + error);
+			    	//Unknown Error
+					res.code = "401";
+					callback(error, res);
+			    }else{
+				    console.log("getGroupNonMembers results : " + JSON.stringify(results));
+				    console.log("getGroupNonMembers mygroupIds : " + JSON.stringify(self.newuserslist));
+				    res.code = "200";
+				    res.content  = self.newuserslist;
+				    callback(error, res);
+			    }
+			});
 		});
-	});
+	}catch(e){
+		console.log("getGroupNonMembers : Error : " + e);
+	}
 };
 
 exports.addUserToGroupAdmin = function(msg, callback){
-	console.log("--------------------------addUserToGroupAdmin----------------------------");
-	console.log("addUserToGroupAdmin Request : " + JSON.stringify(msg));
-	var res = {};
-	var GROUP_ID = msg.GROUP_ID;
-	var USER_ID = msg.ROW_ID;
-	mongo.connect(mongoURL, function(){
-		var coll = mongo.collection('GROUP_USERS');
-		coll.insert({GROUP_ID:GROUP_ID,USER_ID:USER_ID}, function(err,group){
-			console.log("addUserToGroupAdmin Inserted : " + JSON.stringify(group));
-			if(!err){
-				res.code = "200";
-				callback(err, res);
-			}else{
-				//Unknown Error
-				res.code = "401";
-				res.err  = err;
-				callback(err, res);
-			}
+	try{
+		console.log("--------------------------addUserToGroupAdmin----------------------------");
+		console.log("addUserToGroupAdmin Request : " + JSON.stringify(msg));
+		var res = {};
+		var GROUP_ID = msg.GROUP_ID;
+		var USER_ID = msg.ROW_ID;
+		mongo.connect(mongoURL, function(){
+			var coll = mongo.collection('GROUP_USERS');
+			coll.insert({GROUP_ID:GROUP_ID,USER_ID:USER_ID}, function(err,group){
+				console.log("addUserToGroupAdmin Inserted : " + JSON.stringify(group));
+				if(!err){
+					res.code = "200";
+					callback(err, res);
+				}else{
+					//Unknown Error
+					res.code = "401";
+					res.err  = err;
+					callback(err, res);
+				}
+			});
 		});
-	});
+	}catch(e){
+		console.log("addUserToGroupAdmin : Error : " + e);
+	}
 };
 
 exports.removeUserFromGroupAdmin = function(msg, callback){
-	console.log("--------------------------removeUserFromGroupAdmin----------------------------");
-	console.log("removeUserFromGroupAdmin Request : " + JSON.stringify(msg));
-	var res = {};
-	var GROUP_ID = msg.GROUP_ID;
-	var USER_ID = msg.ROW_ID;
-	mongo.connect(mongoURL, function(){
-		var coll = mongo.collection('GROUP_USERS');
-		coll.deleteOne({GROUP_ID:GROUP_ID,USER_ID:USER_ID}, function(err,group){
-			console.log("removeUserFromGroupAdmin DELETED : " + JSON.stringify(group));
-			if(!err){
-				res.code = "200";
-				callback(err, res);
-			}else{
-				//Unknown Error
-				res.code = "401";
-				res.err  = err;
-				callback(err, res);
-			}
+	try{
+		console.log("--------------------------removeUserFromGroupAdmin----------------------------");
+		console.log("removeUserFromGroupAdmin Request : " + JSON.stringify(msg));
+		var res = {};
+		var GROUP_ID = msg.GROUP_ID;
+		var USER_ID = msg.ROW_ID;
+		mongo.connect(mongoURL, function(){
+			var coll = mongo.collection('GROUP_USERS');
+			coll.deleteOne({GROUP_ID:GROUP_ID,USER_ID:USER_ID}, function(err,group){
+				console.log("removeUserFromGroupAdmin DELETED : " + JSON.stringify(group));
+				if(!err){
+					res.code = "200";
+					callback(err, res);
+				}else{
+					//Unknown Error
+					res.code = "401";
+					res.err  = err;
+					callback(err, res);
+				}
+			});
 		});
-	});
+	}catch(e){
+		console.log("removeUserFromGroupAdmin : Error : " + e);
+	}
 };
+
+function deleteGroupMembers(groupid,callback){
+	var coll = mongo.collection('GROUP_USERS');
+	coll.deleteMany({GROUP_ID:groupid}, function(err,group){
+		console.log("deleteGroupMembers ==> deleted ==> " + JSON.stringify(group));
+		callback();
+	});
+}
+
+function deleteMainGroup(groupid,callback){
+	var coll = mongo.collection('GROUPS');
+	coll.deleteOne({"_id":new ObjectId(groupid)}, function(err,group){
+		console.log("deleteMainGroup ==> deleted ==> " + JSON.stringify(group));
+		callback();
+	});
+}
+
+exports.deleteGroup = function(msg, callback){
+	try{
+		console.log("--------------------------deleteGroup----------------------------");
+		console.log("deleteGroup Request : " + JSON.stringify(msg));
+		var res = {};
+		var GROUP_ID = msg.GROUP_ID;
+		mongo.connect(mongoURL, function(){
+			async.series({
+				groupid : async.apply(deleteGroupMembers, GROUP_ID),
+				groupids : async.apply(deleteMainGroup,GROUP_ID)
+			  }, function (error, results) {
+			    if (error) {
+			    	console.log("deleteGroup Error : " + error);
+			    	//Unknown Error
+					res.code = "401";
+					callback(error, res);
+			    }else{
+				    console.log("deleteGroup results : " + JSON.stringify(results));
+				    res.code = "200";
+				    callback(error, res);
+			    }
+			});
+		});
+	}catch(e){
+		console.log("deleteGroup : Error : " + e);
+	}
+};
+

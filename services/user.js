@@ -236,10 +236,23 @@ var loadFriendLists;
 var friendidArray1;
 var friendsId1;
 
+function queryAllFriendsOpenRequest(ROW_ID,callback){
+	console.log("queryAllFriendsOpenRequest called !! " + ROW_ID);
+	var coll = mongo.collection('FRIENDS_LIST');
+	coll.find({USER2 : ROW_ID , ACCEPTED : "N"}).toArray(function(err,friends){
+		self.friendsId1 = friends;
+		for(var friend in self.friendsId1){
+			console.log("queryAllFriendsOpenRequest -- self.friendsId1[friend] : " + JSON.stringify(self.friendsId1[friend]));
+			self.friendidArray1.push(new ObjectId(self.friendsId1[friend].USER1));
+		}
+		callback();
+	});
+}
+
 function queryAllFriends(ROW_ID,callback){
 	console.log("queryAllFriends called !! " + ROW_ID);
 	var coll = mongo.collection('FRIENDS_LIST');
-	coll.find({USER1:ROW_ID}).toArray(function(err,friends){
+	coll.find( { $or: [ { USER1 : ROW_ID } , {USER2 : ROW_ID , ACCEPTED : "N"} ] }).toArray(function(err,friends){
 		self.friendsId1 = friends;
 		for(var friend in self.friendsId1){
 			console.log("queryAllFriends -- self.friendsId1[friend] : " + JSON.stringify(self.friendsId1[friend]));
@@ -272,6 +285,7 @@ exports.loadFriendList = function(msg, callback){
 			
 			async.series({
 				friendId: async.apply(queryAllFriends, ROW_ID),
+				friendId1: async.apply(queryAllFriendsOpenRequest, ROW_ID),
 				firendsdetails: queryNonFriendsfromDB
 			  }, function (error, results) {
 			    if (error) {

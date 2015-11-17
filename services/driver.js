@@ -21,9 +21,9 @@ var self=this;
 exports.verifyUser = function(msg, callback){
 	try{
 		var res = {};
-		connection.query("select * from ADMIN where EMAIL = '" + msg.EMAIL + "'",function(err,user){
+		connection.query("select * from DRIVER where EMAIL = '" + msg.EMAIL + "'",function(err,user){
 			if(!err){
-				if(user != null){
+				if(user != null && user[0].VERIFIED == 1){
 					console.log("User Found !! " + JSON.stringify(user[0]));
 					delete user[0].PASSWORD
 					res = user[0];

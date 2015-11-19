@@ -3,18 +3,9 @@ var mongoURL = "mongodb://localhost:27017/UberPrototypeDB";
 var async = require('async');
 var ObjectId = require('mongodb').ObjectID;
 
-var mysql = require('mysql');
-var connection = mysql.createConnection({
-	multipleStatements: true,
-	host : 'localhost',
-	user : 'root',
-	password : 'root',
-	database: 'uberdb',
-	connectTimeout: 6000,
-	waitForConnections: true,
-	pool: false,
-	port: 8889
-});
+var mysql = require("../routes/mysql");
+
+var self=this;
 
 exports.handle_request_createLocation = function(msg, callback) {
 	var res = {};

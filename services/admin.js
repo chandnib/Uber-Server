@@ -2,26 +2,18 @@ var mongo = require("../routes/mongo");
 var mongoURL = "mongodb://localhost:27017/UberPrototypeDB";
 var async = require('async');
 var ObjectId = require('mongodb').ObjectID;
+var mysql = require("../routes/mysql");
 
 var mysql = require('mysql');
-var connection = mysql.createConnection({
-	multipleStatements: true,
-	host : 'localhost',
-	user : 'root',
-	password : 'root',
-	database: 'uberdb',
-	connectTimeout: 6000,
-	waitForConnections: true,
-	pool: false,
-	port: 8889
-});
+
 
 var self=this;
 
 exports.verifyUser = function(msg, callback){
 	try{
+		var verifyUserQuery = "select * from ADMIN where EMAIL = '" + msg.EMAIL + "'";
 		var res = {};
-		connection.query("select * from ADMIN where EMAIL = '" + msg.EMAIL + "'",function(err,user){
+		mysql.fetchData(function(err,user){
 			if(!err){
 				if(user != null){
 					console.log("User Found !! " + JSON.stringify(user[0]));
@@ -41,7 +33,7 @@ exports.verifyUser = function(msg, callback){
 				res.err  = err;
 				callback(err, res);
 			}
-		});
+		},verifyUserQuery);
 	}catch(e){
 		console.log("verifyUser : Error : " + e);
 	}

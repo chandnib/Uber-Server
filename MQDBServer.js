@@ -84,6 +84,25 @@ connection2.on('ready', function() {
 	});
 	
 });
+connection2.on('ready', function() {
+	connection.queue('addDriver', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			driver.addDriver(message, function(err,res){
+				console.log("verifyUser Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("addDriver Queue Created!!! and listening to the Queue!");
+	});
+	
+});
 connection3.on('ready', function() {
 	connection.queue('uber_createLocation_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){

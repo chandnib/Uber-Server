@@ -5,9 +5,9 @@ function getConnection(){
 	var connection = mysql.createConnection({
 	    host     : 'localhost',
 	    user     : 'root',
-	    password : '',
+	    password : 'root',
 	    database : 'uberdb',
-	    port	 : 3306
+	    port	 : 8889
 	});
 	return connection;
 }

@@ -4,9 +4,6 @@ var async = require('async');
 var ObjectId = require('mongodb').ObjectID;
 var mysql = require("../routes/mysql");
 
-var mysql = require('mysql');
-
-
 var self=this;
 
 exports.verifyUser = function(msg, callback){

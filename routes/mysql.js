@@ -26,11 +26,11 @@ function fetchData(callback,sqlQuery){
 		else 
 		{	// return err or result
 			console.log("DB Results:"+rows);
+			connection.end();
 			callback(err, rows);
 		}
 	});
 	console.log("\nConnection closed..");
-	connection.end();
 }	
 
 exports.fetchData=fetchData;

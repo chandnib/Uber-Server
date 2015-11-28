@@ -57,8 +57,9 @@ exports.generateBill = function(msg, callback) {
 	mysql
 			.fetchData(
 					function(err, results) {
-						if (err || results.length===0) {
-							console.log("no round found");
+						if (err || results.length === 0) {
+							res.code = 401;
+							res.value = "No Ride found";
 						} else {
 							console.log("RESULTS" + results);
 							var time = msg.time;
@@ -67,7 +68,7 @@ exports.generateBill = function(msg, callback) {
 							var distance_covered = msg.distance;
 							var sourceLocation = results[0].PICKUP_LOCATION;
 							var driverID = results[0].DRIVER_ID;
-							var customerID =results[0].CUSTOMER_ID;
+							var customerID = results[0].CUSTOMER_ID;
 							var distance = distance;
 							var time = time;
 							var basefare = 2.20;
@@ -79,8 +80,7 @@ exports.generateBill = function(msg, callback) {
 							var billAmount = calculateBill(distance_covered,
 									time);
 							var insertBill = "INSERT INTO BILLING(BILL_DATE,PICKUP_TIME,DROPOFF_TIME,DISTANCE_COVERED,SOURCE_LOCATION,DRIVER_ID,CUSTOMER_ID,RIDE_ID,BILL_AMOUNT,BASE_FARE,DISTANCE_FARE,TIME_FARE) "
-									+ "VALUES(now()"
-									+ ",'"
+									+ "VALUES(now()" + ",'"
 									+ pickupTime
 									+ "','"
 									+ dropOffTime
@@ -100,17 +100,16 @@ exports.generateBill = function(msg, callback) {
 									+ basefare
 									+ "','"
 									+ distanceFare
-									+ "','"
-									+ timeFare + "');";
+									+ "','" + timeFare + "');";
 
 							console.log("query is:" + insertBill);
 							mysql
 									.fetchData(
 											function(err, results) {
 												if (err) {
-													throw new error(
-															"Error during insertion of bill"
-																	+ err);
+													res.code = 401;
+													res.value = "Error during insertion of bill";
+
 												} else {
 													if (results) {
 														var getBill = "select * from billing where ride_id="
@@ -123,9 +122,8 @@ exports.generateBill = function(msg, callback) {
 																				err,
 																				results) {
 																			if (err) {
-																				throw new error(
-																						"No record found"
-																								+ err);
+																				res.code = 401;
+																				res.value = "Error occur getting bill";
 																			} else {
 																				console
 																						.log("RESULTS"

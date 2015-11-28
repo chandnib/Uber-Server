@@ -498,4 +498,25 @@ connection4.on('ready', function() {
 	
 });
 
+
+connection4.on('ready', function() {
+	connection.queue('uber_getFareEstimate_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			rides.getFareEstimate(message, function(err,res){
+				console.log("getFareEstimate Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("uber_getFareEstimate_queue  Created!!! and listening to the Queue!");
+	});
+	
+});
+
 //can you open the console please

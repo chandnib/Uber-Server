@@ -4,10 +4,12 @@ var admin = require('./services/admin');
 var customer = require('./services/customer');
 var driver = require('./services/driver');
 var rides = require('./services/rides');
+var billing = require('./services/billing');
 var connection = amqp.createConnection({host:'localhost'});
 var connection1 = amqp.createConnection({host:'localhost'});
 var connection2 = amqp.createConnection({host:'localhost'});
 var connection3 = amqp.createConnection({host:'localhost'});
+var connection4 = amqp.createConnection({host:'localhost'});
 
 connection.on('ready', function() {
 	
@@ -179,6 +181,29 @@ connection3.on('ready', function() {
 			});
 		});
 		console.log("deleteRide Queue Created!!! and listening to the Queue!");
+	});
+	
+});
+
+
+//Call added for generating bill
+
+connection4.on('ready', function() {
+	connection.queue('uber_generateBill_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			rides.generateBill(message, function(err,res){
+				console.log("generateBill Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("uber_generateBill_queue  Created!!! and listening to the Queue!");
 	});
 	
 });

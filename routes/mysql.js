@@ -11,8 +11,13 @@ function getConnection(){
 		host     : 'localhost',
 		user     : 'root',
 		password : 'root',
+<<<<<<< HEAD
 		database : 'uberdb'//,
 			//  port	 : 8889
+=======
+		database : 'uberdb',
+	    port	 : 8889
+>>>>>>> 318e2697836a08f080e2a85e633d51522618b2e5
 	});
 	return connection;
 }
@@ -36,7 +41,10 @@ function fetchData(callback,sqlQuery){
 		}
 	});
 	console.log("\nConnection closed..");
+<<<<<<< HEAD
 
+=======
+>>>>>>> 318e2697836a08f080e2a85e633d51522618b2e5
 }	
 
 exports.formatSQLStatment = function(sqlQuery,inserts){

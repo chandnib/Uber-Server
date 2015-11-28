@@ -10,7 +10,6 @@ var connection2 = amqp.createConnection({host:'localhost'});
 var connection3 = amqp.createConnection({host:'localhost'});
 
 connection.on('ready', function() {
-	
 	connection.queue('verifyAdmin', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -26,6 +25,186 @@ connection.on('ready', function() {
 			});
 		});
 		console.log("verifyAdmin Queue Created!!! and listening to the Queue!");
+	});
+	
+	//changes
+	connection.queue('loadUnverifiedCustomers', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("loadUnverifiedCustomers => Message: "+JSON.stringify(message));
+			util.log("loadUnverifiedCustomers => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.loadUnverifiedCustomers(message, function(err,res){
+				console.log("loadUnverifiedCustomers Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("loadUnverifiedCustomers Queue Created!!! and listening to the Queue!");
+	});
+	
+	//changes
+	connection.queue('approveCustomer', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("approveCustomer => Message: "+JSON.stringify(message));
+			util.log("approveCustomer => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.approveCustomer(message, function(err,res){
+				console.log("approveCustomer Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("approveCustomer Queue Created!!! and listening to the Queue!");
+	});
+	
+	//changes
+	connection.queue('rejectCustomer', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("rejectCustomer => Message: "+JSON.stringify(message));
+			util.log("rejectCustomer => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.rejectCustomer(message, function(err,res){
+				console.log("rejectCustomer Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("approveCustomer Queue Created!!! and listening to the Queue!");
+	});
+	
+	//changes
+	connection.queue('approveAllCustomer', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("approveAllCustomer => Message: "+JSON.stringify(message));
+			util.log("approveAllCustomer => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.approveAllCustomer(message, function(err,res){
+				console.log("approveAllCustomer Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("approveCustomer Queue Created!!! and listening to the Queue!");
+	});
+	
+	//changes
+	connection.queue('rejectAllCustomer', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("rejectAllCustomer => Message: "+JSON.stringify(message));
+			util.log("rejectAllCustomer => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.rejectAllCustomer(message, function(err,res){
+				console.log("rejectAllCustomer Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("rejectAllCustomer Queue Created!!! and listening to the Queue!");
+	});
+	
+	//changes
+	connection.queue('loadUnverifiedDrivers', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("loadUnverifiedDrivers => Message: "+JSON.stringify(message));
+			util.log("loadUnverifiedDrivers => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.loadUnverifiedDrivers(message, function(err,res){
+				console.log("loadUnverifiedDrivers Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("loadUnverifiedDrivers Queue Created!!! and listening to the Queue!");
+	});
+	
+	//changes
+	connection.queue('approveDriver', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("approveDriver => Message: "+JSON.stringify(message));
+			util.log("approveDriver => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.approveDriver(message, function(err,res){
+				console.log("approveDriver Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("approveDriver Queue Created!!! and listening to the Queue!");
+	});
+	
+	//changes
+	connection.queue('rejectDriver', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("rejectDriver => Message: "+JSON.stringify(message));
+			util.log("rejectDriver => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.rejectDriver(message, function(err,res){
+				console.log("rejectDriver Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("approveDriver Queue Created!!! and listening to the Queue!");
+	});
+	
+	//changes
+	connection.queue('approveAllDriver', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("approveAllDriver => Message: "+JSON.stringify(message));
+			util.log("approveAllDriver => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.approveAllDriver(message, function(err,res){
+				console.log("approveAllDriver Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("approveDriver Queue Created!!! and listening to the Queue!");
+	});
+	
+	//changes
+	connection.queue('rejectAllDriver', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("rejectAllDriver => Message: "+JSON.stringify(message));
+			util.log("rejectAllDriver => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.rejectAllDriver(message, function(err,res){
+				console.log("rejectAllDriver Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("rejectAllDriver Queue Created!!! and listening to the Queue!");
 	});
 });
 
@@ -47,6 +226,7 @@ connection1.on('ready', function() {
 		console.log("verifyCustomer Queue Created!!! and listening to the Queue!");
 	});
 });
+
 connection1.on('ready', function() {
 	connection.queue('addCustomer', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){

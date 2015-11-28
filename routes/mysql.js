@@ -1,24 +1,29 @@
 var ejs= require('ejs');
 var mysql = require('mysql');
 
+//Changes
 function getConnection(){
 	var connection = mysql.createConnection({
-	    host     : 'localhost',
-	    user     : 'root',
-	    password : 'root',
-	    database : 'uberdb',
-	    port	 : 8889
+		multipleStatements: true,
+		connectTimeout: 6000,
+		waitForConnections: true,
+		pool: false,
+		host     : 'localhost',
+		user     : 'root',
+		password : 'root',
+		database : 'uberdb'//,
+			//  port	 : 8889
 	});
 	return connection;
 }
 
 
 function fetchData(callback,sqlQuery){
-	
+
 	console.log("\nSQL Query::"+sqlQuery);
-	
-	var connection=getConnection();
-	
+
+	var connection = getConnection();
+
 	connection.query(sqlQuery, function(err, rows, fields) {
 		if(err){
 			console.log("ERROR: " + err.message);
@@ -26,11 +31,18 @@ function fetchData(callback,sqlQuery){
 		else 
 		{	// return err or result
 			console.log("DB Results:"+rows);
+			connection.end();
 			callback(err, rows);
 		}
 	});
 	console.log("\nConnection closed..");
-	connection.end();
+
 }	
+
+exports.formatSQLStatment = function(sqlQuery,inserts){
+	sqlQuery = mysql.format(sqlQuery, inserts);
+	console.log("\nSQL Query after formatiing :: " + sqlQuery);
+	return sqlQuery;
+}
 
 exports.fetchData=fetchData;

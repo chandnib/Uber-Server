@@ -3,10 +3,14 @@ var mysql = require('mysql');
 
 function getConnection(){
 	var connection = mysql.createConnection({
-	    host     : 'localhost',
-	    user     : 'root',
-	    password : 'root',
-	    database : 'uberdb',
+		multipleStatements: true,
+		connectTimeout: 6000,
+		waitForConnections: true,
+		pool: false,
+		host     : 'localhost',
+		user     : 'root',
+		password : 'root',
+		database : 'uberdb',
 	    port	 : 8889
 	});
 	return connection;

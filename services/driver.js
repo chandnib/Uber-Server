@@ -291,15 +291,12 @@ exports.showDriverin10Mile = function(msg, callback) {
 		else
 		{			
 			console.log(" fetching success");
-			res.code = 200;
-			res = {
-				members : results
-			};
+			res.data = results;
 			callback(null, res);
 		}
 	},	getCoordinates);	
 	} catch (e) {
-		console.log("updateDriver : Error : " + e);
+		console.log("showDriverin10Mile : Error : " + e);
 	}
 };
 exports.aboutDriver = function(msg, callback) {

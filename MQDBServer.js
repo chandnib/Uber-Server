@@ -414,26 +414,8 @@ connection2.on('ready', function() {
 	});
 	
 });
-connection3.on('ready', function() {
-	connection.queue('uber_createLocation_queue', function(q){
-		q.subscribe(function(message, header, deliveryInfo, messageHeader){
-			util.log(util.format( deliveryInfo.routingKey, message));
-			util.log("Message: "+JSON.stringify(message));
-			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
-			rides.handle_request_createLocation(message, function(err,res){
-				console.log("createRides Response : " + JSON.stringify(res));
-				connection.publish(messageHeader.replyTo, res, {
-					contentType:'application/json',
-					contentEncoding:'utf-8',
-					correlationId:messageHeader.correlationId
-				});
-			});
-		});
-		console.log("createRides Queue Created!!! and listening to the Queue!");
-	});
-	
-});
 
+//-----------------------------------------RIDES MODULE START-------------------------------------------------------------//
 connection3.on('ready', function() {
 	connection.queue('uber_createRide_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
@@ -495,6 +477,136 @@ connection3.on('ready', function() {
 });
 
 
+connection3.on('ready', function() {
+	connection.queue('uber_startRideQueue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			rides.handle_request_startRide(message, function(err,res){
+				console.log("startRide Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("startRide Queue Created!!! and listening to the Queue!");
+	});
+	
+});
+
+
+connection3.on('ready', function() {
+	connection.queue('uber_cancelRideQueue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			rides.handle_request_cancelRide(message, function(err,res){
+				console.log("cancelRide Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("cancelRide Queue Created!!! and listening to the Queue!");
+	});
+	
+});
+
+
+connection3.on('ready', function() {
+	connection.queue('uber_endRideQueue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			rides.handle_request_endRide(message, function(err,res){
+				console.log("endRide Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("endRide Queue Created!!! and listening to the Queue!");
+	});
+	
+});
+
+
+connection3.on('ready', function() {
+	connection.queue('uber_fetchRideStatusQueue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			rides.handle_request_fetchRideStatus(message, function(err,res){
+				console.log("fetchRideStatus Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("fetchRideStatus Queue Created!!! and listening to the Queue!");
+	});
+	
+});
+
+
+connection3.on('ready', function() {
+	connection.queue('uber_getRideCreatedQueue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			rides.handle_request_getRideCreated(message, function(err,res){
+				console.log("getRideCreatedQueue Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("getRideCreated Queue Created!!! and listening to the Queue!");
+	});
+	
+});
+
+
+connection3.on('ready', function() {
+	connection.queue('uber_getCustomerTripSummary_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			rides.handle_request_getCustomerTripSummary(message, function(err,res){
+				console.log("getCustomerTripSummary Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("getCustomerTripSummary Queue Created!!! and listening to the Queue!");
+	});
+	
+});
+
+//-----------------------------------------RIDES MODULE END-------------------------------------------------------------//
+
+
+
+
 //Call added for generating bill
 
 connection4.on('ready', function() {
@@ -503,7 +615,7 @@ connection4.on('ready', function() {
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
-			rides.generateBill(message, function(err,res){
+			billing.generateBill(message, function(err,res){
 				console.log("generateBill Response : " + JSON.stringify(res));
 				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',

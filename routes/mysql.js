@@ -8,11 +8,11 @@ function getConnection(){
 		connectTimeout: 6000,
 		waitForConnections: true,
 		pool: false,
-		host     : 'localhost',
-		user     : 'root',
-		password : 'root',
+		host : 'localhost',
+		user : 'root',
+		password : '',
 		database : 'uberdb',
-		port	 : 3306
+		port : 3306
 
 	});
 	return connection;

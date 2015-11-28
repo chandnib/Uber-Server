@@ -52,13 +52,13 @@ exports.generateBill = function(msg, callback) {
 	var res = {};
 	console.log("inside generate bill");
 
-	var rideID = msg.ride_id;
-	var getRide = "select * from ride where ROW_ID=" + rideID;
+	var rideID = msg.rideId;
+	var getRide = "select * from rides where ROW_ID=" + rideID;
 	mysql
 			.fetchData(
 					function(err, results) {
-						if (err) {
-							throw new error("No record found" + err);
+						if (err || results.length===0) {
+							console.log("no round found");
 						} else {
 							console.log("RESULTS" + results);
 							var time = msg.time;

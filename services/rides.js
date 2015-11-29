@@ -1,11 +1,35 @@
-var mongo = require("../routes/mongo");
-var mongoURL = "mongodb://localhost:27017/UberPrototypeDB";
-var async = require('async');
-var ObjectId = require('mongodb').ObjectID;
+var mysql = require('../mysql/mysql');
 
-var mysql = require("../routes/mysql");
+exports.handle_request_createLocation = function(msg, callback) {
+	var res = {};
+	console.log("inside create location");
 
-var self=this;
+	var location = msg.location;
+	console.log("location: " + JSON.stringify(msg.location));
+	var insertLocation = "INSERT INTO LOCATION(`LATITUDE`, `LONGITUDE`, "
+			+ "`STREET_NUMBER`,`ROUTE`,`LOCALITY`,`CITY`,`STATE`,"
+			+ "`COUNTRY`,`POSTAL_CODE`) " + "VALUES(" + msg.latitude + ","
+			+ msg.longitude + ",'"
+			+ location[0].address_components[0].long_name + "','"
+			+ location[0].address_components[1].long_name + "','"
+			+ location[0].address_components[2].long_name + "','"
+			+ location[0].address_components[3].long_name + "','"
+			+ location[0].address_components[5].long_name + "','"
+			+ location[0].address_components[6].long_name + "','"
+			+ location[0].address_components[7].long_name + "');";
+	console.log("query is:" + insertLocation);
+
+	mysql.fetchData(function(err, results) {
+		if (err) {	
+			throw err;
+		} else {
+			console.log("RESULTS" + results);
+			res.code = 200;
+			res.value = results.insertId;
+			callback(null, res);
+		}
+	}, insertLocation);
+};
 
 exports.handle_request_createRide = function(msg, callback) {
 	var res = {};
@@ -34,10 +58,17 @@ exports.handle_request_createRide = function(msg, callback) {
 		if (err) {
 			throw err;
 		} else {
-			console.log("RESULTS" + results);
+			console.log("RESULTS" + JSON.stringify(results));
+			if(results.insertId >= 1)
+				{
 			res.code = 200;
-			res.value = results.insertId;
 			res.status = 'CR';
+			console.log("response object : " + res);
+				}
+			else
+				res.code = 400;
+			
+			res.value = results.insertId;
 			callback(null, res);
 		}
 	}, insertRide);
@@ -52,10 +83,11 @@ exports.handle_request_editRide = function(msg, callback) {
 	var newdropoff_latitude = msg.newdropoff_latitude;
 	var newdropoff_longitude = msg.newdropoff_longitude;
 	var customer_id = msg.customer_id;
+	var ride_id = msg.ride_id;
 
 	var editRide = "UPDATE RIDES SET DROPOFF_LOCATION = '"
 			+ newdropoff_address + "', DROPOFF_LATITUDE = " + newdropoff_latitude + ", DROPOFF_LONGITUDE=" + newdropoff_longitude + " WHERE CUSTOMER_ID = " + customer_id
-			+ " AND RIDE_END_TIME = '0000-00-00 00:00:00';";
+			+ " AND RIDE_END_TIME = '0000-00-00 00:00:00' AND ROW_ID = " + ride_id + ";";
 
 	console.log("query is:" + editRide);
 
@@ -63,9 +95,13 @@ exports.handle_request_editRide = function(msg, callback) {
 		if (err) {
 			throw err;
 		} else {
-			console.log("RESULTS" + results);
-			res.code = 200;
+			console.log("RESULTS" + JSON.stringify(results));
+			if(results.affectedRows >0)
+				res.code = 200;
+			else
+				res.code = 400;
 			res.value = results;
+			console.log("response object : " + res);
 			callback(null, res);
 		}
 	}, editRide);
@@ -94,6 +130,13 @@ exports.handle_request_deleteRide = function(msg,callback)
 	}, deleteRide);
 };
 
+exports.handle_request_searchRides = function(msg,callback)
+{
+	var res = {};
+	console.log("inside search rides" + msg.searchSpec);
+	
+	
+};
 
 exports.handle_request_startRide = function(msg,callback)
 {
@@ -109,10 +152,14 @@ exports.handle_request_startRide = function(msg,callback)
 		if (err) {
 			throw err;
 		} else {
-			console.log("RESULTS" + results);
-			res.code = 200;
+			console.log("RESULTS" + JSON.stringify(results));
+			if(results.affectedRows > 0){
+				res.code = 200;
+				res.status = 'S';
+			}
+			else
+				res.code = 400;
 			res.value = results;
-			res.status = 'S'
 			callback(null, res);
 		}
 	}, startRide);
@@ -124,21 +171,26 @@ exports.handle_request_cancelRide = function(msg,callback)
 	console.log("inside cancel ride" + msg.ride_id);
 	var ride_id = msg.ride_id;
 	
-	var startRide = "UPDATE RIDES SET STATUS = 'CA' , RIDE_END_TIME = NOW() WHERE ROW_ID = " + ride_id + " AND RIDE_END_TIME = '0000-00-00 00:00:00';";
+	var cancelRide = "UPDATE RIDES SET STATUS = 'CA' , RIDE_END_TIME = NOW() WHERE ROW_ID = " + ride_id + " AND RIDE_END_TIME = '0000-00-00 00:00:00';";
 	
-	console.log("query is:" + startRide);
+	console.log("query is:" + cancelRide);
 
 	mysql.fetchData(function(err, results) {
 		if (err) {
 			throw err;
-		} else {
-			console.log("RESULTS" + results);
-			res.code = 200;
-			res.status = 'CA'
+		} else{
+			console.log("RESULTS" + JSON.stringify(results));
+			if(results.affectedRows > 0){
+				res.code = 200;
+				res.status = 'CA';
+			}
+			else
+				res.code = 400;
 			res.value = results;
+			console.log("response object : " + JSON.stringify(res));
 			callback(null, res);
 		}
-	}, startRide);
+	}, cancelRide);
 };
 
 exports.handle_request_endRide = function(msg,callback)
@@ -155,10 +207,15 @@ exports.handle_request_endRide = function(msg,callback)
 		if (err) {
 			throw err;
 		} else {
-			console.log("RESULTS" + results);
-			res.code = 200;
+			console.log("RESULTS" + JSON.stringify(results));
+			if(results.affectedRows > 0){
+				res.code = 200;
+				res.status = 'E';
+			}
+			else
+				res.code = 400;
 			res.value = results;
-			res.status = 'E'
+			console.log("response object : " + JSON.stringify(res));
 			callback(null, res);
 		}
 	}, endRide);
@@ -178,10 +235,10 @@ exports.handle_request_fetchRideStatus = function(msg,callback)
 		if (err) {
 			throw err;
 		} else {
-			console.log("RESULTS" + results);
+			console.log("RESULTS" + JSON.stringify(results));
 			res.code = 200;
 			res.value = results;
-			console.log(results);
+			console.log("response object : " + JSON.stringify(res));
 			callback(null, res);
 		}
 	}, fetchRideStatus);
@@ -205,10 +262,10 @@ exports.handle_request_getRideCreated = function(msg,callback)
 		if (err) {
 			throw err;
 		} else {
-			console.log("RESULTS" + results);
+			console.log("RESULTS" + JSON.stringify(results));
 			res.code = 200;
 			res.value = results;
-			console.log(results);
+			console.log("response object : " + JSON.stringify(res));
 			callback(null, res);
 		}
 	}, getDetails);
@@ -233,10 +290,10 @@ exports.handle_request_getCustomerTripSummary = function(msg,callback)
 		if (err) {
 			throw err;
 		} else {
-			console.log("RESULTS" + results);
+			console.log("RESULTS" + JSON.stringify(results));
 			res.code = 200;
 			res.value = results;
-			console.log(results);
+			console.log("response object : " + JSON.stringify(res));
 			callback(null, res);
 		}
 	}, getCustomerTripSummary);

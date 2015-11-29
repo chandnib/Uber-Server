@@ -11,6 +11,7 @@ var connection2 = amqp.createConnection({host:'localhost'});
 var connection3 = amqp.createConnection({host:'localhost'});
 var connection4 = amqp.createConnection({host:'localhost'});
 
+//Admin Related Queues
 connection.on('ready', function() {
 	connection.queue('verifyAdmin', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
@@ -29,7 +30,7 @@ connection.on('ready', function() {
 		console.log("verifyAdmin Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
+
 	connection.queue('loadUnverifiedCustomers', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -46,8 +47,7 @@ connection.on('ready', function() {
 		});
 		console.log("loadUnverifiedCustomers Queue Created!!! and listening to the Queue!");
 	});
-	
-	//changes
+
 	connection.queue('approveCustomer', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -65,7 +65,6 @@ connection.on('ready', function() {
 		console.log("approveCustomer Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
 	connection.queue('rejectCustomer', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -83,7 +82,6 @@ connection.on('ready', function() {
 		console.log("approveCustomer Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
 	connection.queue('approveAllCustomer', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -101,7 +99,6 @@ connection.on('ready', function() {
 		console.log("approveCustomer Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
 	connection.queue('rejectAllCustomer', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -119,7 +116,7 @@ connection.on('ready', function() {
 		console.log("rejectAllCustomer Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
+	
 	connection.queue('loadUnverifiedDrivers', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -137,7 +134,6 @@ connection.on('ready', function() {
 		console.log("loadUnverifiedDrivers Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
 	connection.queue('approveDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -155,7 +151,7 @@ connection.on('ready', function() {
 		console.log("approveDriver Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
+	
 	connection.queue('rejectDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -173,7 +169,7 @@ connection.on('ready', function() {
 		console.log("approveDriver Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
+	
 	connection.queue('approveAllDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -191,7 +187,7 @@ connection.on('ready', function() {
 		console.log("approveDriver Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
+	
 	connection.queue('rejectAllDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -207,6 +203,41 @@ connection.on('ready', function() {
 			});
 		});
 		console.log("rejectAllDriver Queue Created!!! and listening to the Queue!");
+	});
+	
+	//changes
+	connection.queue('loadCustomerDetail', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("loadCustomerDetail => Message: "+JSON.stringify(message));
+			util.log("loadCustomerDetail => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.loadCustomerDetail(message, function(err,res){
+				console.log("loadCustomerDetail Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("loadCustomerDetail Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('loadDriverDetail', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("loadDriverDetail => Message: "+JSON.stringify(message));
+			util.log("loadDriverDetail => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.loadDriverDetail(message, function(err,res){
+				console.log("loadDriverDetail Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("loadDriverDetail Queue Created!!! and listening to the Queue!");
 	});
 });
 
@@ -298,17 +329,52 @@ connection1.on('ready', function() {
 		});
 		console.log("infoCustomer Queue Created!!! and listening to the Queue!");
 	});
+	
+	connection1.queue('uploadProfilePic', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("uploadProfilePic Message: "+JSON.stringify(message));
+			util.log("uploadProfilePic DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			customer.uploadProfilePic(message, function(err,res){
+				console.log("uploadProfilePic Response : " + JSON.stringify(res));
+				connection1.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("uploadProfilePic Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection1.queue('CreateCustomer', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("CreateCustomer Message: "+JSON.stringify(message));
+			util.log("CreateCustomer DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			customer.CreateCustomer(message, function(err,res){
+				console.log("CreateCustomer Response : " + JSON.stringify(res));
+				connection1.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("CreateCustomer Queue Created!!! and listening to the Queue!");
+	});
 });
 	
+//Driver Related Queues
 connection2.on('ready', function() {
-	connection.queue('verifyDriver', function(q){
+	connection2.queue('verifyDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			driver.verifyUser(message, function(err,res){
 				console.log("verifyUser Response : " + JSON.stringify(res));
-				connection.publish(messageHeader.replyTo, res, {
+				connection2.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -318,16 +384,14 @@ connection2.on('ready', function() {
 		console.log("verifyDriver Queue Created!!! and listening to the Queue!");
 	});
 	
-});
-connection2.on('ready', function() {
-	connection.queue('aboutDriverUser', function(q){
+	connection2.queue('aboutDriverUser', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			driver.aboutDriver(message, function(err,res){
 				console.log("aboutDriverUser Response : " + JSON.stringify(res));
-				connection.publish(messageHeader.replyTo, res, {
+				connection2.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -337,16 +401,14 @@ connection2.on('ready', function() {
 		console.log("aboutDriverUser Queue Created!!! and listening to the Queue!");
 	});
 	
-});
-connection2.on('ready', function() {
-	connection.queue('deleteDriver', function(q){
+	connection2.queue('deleteDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			driver.deleteDriver(message, function(err,res){
 				console.log("deleteDriver Response : " + JSON.stringify(res));
-				connection.publish(messageHeader.replyTo, res, {
+				connection2.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -356,16 +418,14 @@ connection2.on('ready', function() {
 		console.log("deleteDriver Queue Created!!! and listening to the Queue!");
 	});
 	
-});
-connection2.on('ready', function() {
-	connection.queue('updateDriver', function(q){
+	connection2.queue('updateDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			driver.updateDriver(message, function(err,res){
 				console.log("updateDriver Response : " + JSON.stringify(res));
-				connection.publish(messageHeader.replyTo, res, {
+				connection2.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -375,16 +435,14 @@ connection2.on('ready', function() {
 		console.log("updateDriver Queue Created!!! and listening to the Queue!");
 	});
 	
-});
-connection2.on('ready', function() {
-	connection.queue('addDriver', function(q){
+	connection2.queue('addDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			driver.addDriver(message, function(err,res){
 				console.log("verifyUser Response : " + JSON.stringify(res));
-				connection.publish(messageHeader.replyTo, res, {
+				connection2.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -394,16 +452,52 @@ connection2.on('ready', function() {
 		console.log("addDriver Queue Created!!! and listening to the Queue!");
 	});
 	
+	connection2.queue('uploadProfilePicDriver', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("uploadProfilePicDriver Message: "+JSON.stringify(message));
+			util.log(" uploadProfilePicDriver DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			driver.uploadProfilePicDriver(message, function(err,res){
+				console.log("uploadProfilePicDriver Response : " + JSON.stringify(res));
+				connection2.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("addDriver Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection2.queue('CreateDrivers', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("CreateDrivers Message: "+JSON.stringify(message));
+			util.log(" CreateDrivers DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			driver.CreateDrivers(message, function(err,res){
+				console.log("CreateDrivers Response : " + JSON.stringify(res));
+				connection2.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("CreateDrivers Queue Created!!! and listening to the Queue!");
+	});
+	
 });
+	
+	//Ride Related Queues
 connection3.on('ready', function() {
-	connection.queue('uber_createLocation_queue', function(q){
+	connection3.queue('uber_createLocation_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			rides.handle_request_createLocation(message, function(err,res){
 				console.log("createRides Response : " + JSON.stringify(res));
-				connection.publish(messageHeader.replyTo, res, {
+				connection3.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -413,17 +507,14 @@ connection3.on('ready', function() {
 		console.log("createRides Queue Created!!! and listening to the Queue!");
 	});
 	
-});
-
-connection3.on('ready', function() {
-	connection.queue('uber_createRide_queue', function(q){
+	connection3.queue('uber_createRide_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			rides.handle_request_createRide(message, function(err,res){
 				console.log("createRides2 Response : " + JSON.stringify(res));
-				connection.publish(messageHeader.replyTo, res, {
+				connection3.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -433,17 +524,14 @@ connection3.on('ready', function() {
 		console.log("createRides2 Queue Created!!! and listening to the Queue!");
 	});
 	
-});
-
-connection3.on('ready', function() {
-	connection.queue('uber_editRide_queue', function(q){
+	connection3.queue('uber_editRide_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			rides.handle_request_editRide(message, function(err,res){
 				console.log("editRide Response : " + JSON.stringify(res));
-				connection.publish(messageHeader.replyTo, res, {
+				connection3.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -453,17 +541,14 @@ connection3.on('ready', function() {
 		console.log("editRide Queue Created!!! and listening to the Queue!");
 	});
 	
-});
-
-connection3.on('ready', function() {
-	connection.queue('uber_deleteRide_queue', function(q){
+	connection3.queue('uber_deleteRide_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			rides.handle_request_deleteRide(message, function(err,res){
 				console.log("deleteRide Response : " + JSON.stringify(res));
-				connection.publish(messageHeader.replyTo, res, {
+				connection3.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -477,16 +562,15 @@ connection3.on('ready', function() {
 
 
 //Call added for generating bill
-
 connection4.on('ready', function() {
-	connection.queue('uber_generateBill_queue', function(q){
+	connection4.queue('uber_generateBill_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			rides.generateBill(message, function(err,res){
 				console.log("generateBill Response : " + JSON.stringify(res));
-				connection.publish(messageHeader.replyTo, res, {
+				connection4.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -497,5 +581,3 @@ connection4.on('ready', function() {
 	});
 	
 });
-
-//can you open the console please

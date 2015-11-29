@@ -343,3 +343,67 @@ exports.rejectAllDriver = function(msg, callback){
 		console.log("rejectAllDriver : Error : " + e);
 	}
 };
+
+
+exports.loadCustomerDetail = function(msg, callback){
+	try{
+		var verifyUserQuery = "SELECT `ROW_ID`,IMAGE_URL, `FIRST_NAME`, `LAST_NAME`, `ADDRESS`, `CITY`, `STATE`, `ZIPCODE`, `EMAIL`, `PHONE_NUM`, `CREDIT_CARD_ID`, `VERIFIED` FROM `CUSTOMER` where ROW_ID = ?";
+		var inserts = [msg.ROW_ID];
+		var res = {};
+		verifyUserQuery = mysql.formatSQLStatment(verifyUserQuery,inserts)
+		mysql.fetchData(function(err,user){
+			if(!err){
+				if(user != null){
+					console.log("loadCustomerDetail Customers Found !! " + JSON.stringify(user));
+					res.data = user;
+					res.code = "200";
+					callback(null, res);
+				}else{
+					//User Not Found
+					res.code = "401";
+					res.err  = "User not found in the system, Please register before trying to Login to the application..";
+					callback(null, res);
+				}
+			}else{
+				//Unknown Error
+				res.code = "401";
+				res.err  = err;
+				callback(err, res);
+			}
+		},verifyUserQuery);
+	}catch(e){
+		console.log("loadCustomerDetail : Error : " + e);
+	}
+};
+
+exports.loadDriverDetail = function(msg, callback){
+	try{
+		var verifyUserQuery = "SELECT `ROW_ID`,IMAGE_URL, `FIRST_NAME`, `LAST_NAME`, `ADDRESS`, `CITY`, `STATE`, `ZIPCODE`, `EMAIL`, `PHONE_NUM`, `VERIFIED` FROM `DRIVER` where ROW_ID = ?";
+		var inserts = [msg.ROW_ID];
+		var res = {};
+		verifyUserQuery = mysql.formatSQLStatment(verifyUserQuery,inserts)
+		mysql.fetchData(function(err,user){
+			if(!err){
+				if(user != null){
+					console.log("loadDriverDetail Customers Found !! " + JSON.stringify(user));
+					res.data = user;
+					res.code = "200";
+					callback(null, res);
+				}else{
+					//User Not Found
+					res.code = "401";
+					res.err  = "User not found in the system, Please register before trying to Login to the application..";
+					callback(null, res);
+				}
+			}else{
+				//Unknown Error
+				res.code = "401";
+				res.err  = err;
+				callback(err, res);
+			}
+		},verifyUserQuery);
+	}catch(e){
+		console.log("loadDriverDetail : Error : " + e);
+	}
+};
+

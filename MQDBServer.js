@@ -499,7 +499,7 @@ connection3.on('ready', function() {
 
 
 connection3.on('ready', function() {
-	connection.queue('uber_cancelRideQueue', function(q){
+	connection.queue('uber_cancelRide_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));

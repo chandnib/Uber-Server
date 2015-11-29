@@ -5,11 +5,13 @@ var customer = require('./services/customer');
 var driver = require('./services/driver');
 var rides = require('./services/rides');
 var billing = require('./services/billing');
+var rating = require('./services/rating');
 var connection = amqp.createConnection({host:'localhost'});
 var connection1 = amqp.createConnection({host:'localhost'});
 var connection2 = amqp.createConnection({host:'localhost'});
 var connection3 = amqp.createConnection({host:'localhost'});
 var connection4 = amqp.createConnection({host:'localhost'});
+var connection5 = amqp.createConnection({host:'localhost'});
 
 connection.on('ready', function() {
 	connection.queue('verifyAdmin', function(q){
@@ -395,6 +397,25 @@ connection2.on('ready', function() {
 	});
 	
 });
+connection2.on('ready', function() {
+	connection.queue('showDriverin10Mile_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			driver.showDriverin10Mile(message, function(err,res){
+				console.log("verifyUser Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("showDriverin10Mile Queue Created!!! and listening to the Queue!");
+	});
+	
+});
 
 //-----------------------------------------RIDES MODULE START-------------------------------------------------------------//
 connection3.on('ready', function() {
@@ -540,7 +561,25 @@ connection3.on('ready', function() {
 	});
 	
 });
-
+connection2.on('ready', function() {
+	connection.queue('showDriverin10Mile_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			driver.showDriverin10Mile(message, function(err,res){
+				console.log("verifyUser Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("showDriverin10Mile Queue Created!!! and listening to the Queue!");
+	});
+	
+});
 
 connection3.on('ready', function() {
 	connection.queue('uber_getRideCreated_queue', function(q){
@@ -631,4 +670,86 @@ connection4.on('ready', function() {
 	
 });
 
-//can you open the console please
+// Rating Calls Start from here by Parteek
+connection5.on('ready', function() {
+	connection5.queue('uber_getCustomerRating_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			billing.getCustomerRating(message, function(err,res){
+				console.log("getCustomerRating Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("uber_getCustomerRating_queue  Created!!! and listening to the Queue!");
+	});
+	
+});
+
+connection5.on('ready', function() {
+	connection5.queue('uber_getDriverRating_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			billing.getDriverRating(message, function(err,res){
+				console.log("getDriverRating Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("uber_getDriverRating_queue  Created!!! and listening to the Queue!");
+	});
+	
+});
+
+connection5.on('ready', function() {
+	connection5.queue('uber_saveCustomerRating_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			billing.saveCustomerRating(message, function(err,res){
+				console.log("saveCustomerRating Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("uber_saveCustomerRating_queue  Created!!! and listening to the Queue!");
+	});
+	
+});
+
+connection5.on('ready', function() {
+	connection5.queue('uber_saveCustomerRating_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			billing.saveDriverRating(message, function(err,res){
+				console.log("saveDriverRating Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("uber_saveCustomerRating_queue  Created!!! and listening to the Queue!");
+	});
+	
+});
+
+//Rating Calls End here by Parteek
+

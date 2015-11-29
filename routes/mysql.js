@@ -8,9 +8,9 @@ function getConnection(){
 		connectTimeout: 6000,
 		waitForConnections: true,
 		pool: false,
-		host : 'localhost',
-		user : 'root',
-		password : '',
+		host     : 'localhost',
+		user     : 'root',
+		password : 'rootpwd1',
 		database : 'uberdb',
 		port : 3306
 
@@ -37,13 +37,13 @@ function fetchData(callback,sqlQuery){
 		}
 	});
 	console.log("\nConnection closed..");
-
 }	
 
 exports.formatSQLStatment = function(sqlQuery,inserts){
 	sqlQuery = mysql.format(sqlQuery, inserts);
 	console.log("\nSQL Query after formatiing :: " + sqlQuery);
 	return sqlQuery;
-}
+};
+
 
 exports.fetchData=fetchData;

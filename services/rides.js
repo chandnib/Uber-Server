@@ -1,4 +1,4 @@
-var mysql = require('../mysql/mysql');
+var mysql = require('../routes/mysql');
 
 exports.handle_request_createLocation = function(msg, callback) {
 	var res = {};
@@ -69,9 +69,11 @@ exports.handle_request_createRide = function(msg, callback) {
 				res.code = 400;
 			
 			res.value = results.insertId;
+				}
+			console.log("response object :" + JSON.stringify(res));
 			callback(null, res);
-		}
-	}, insertRide);
+		}, insertRide);
+
 
 };
 
@@ -280,7 +282,7 @@ exports.handle_request_getCustomerTripSummary = function(msg,callback)
 	
 
 
-			var getCustomerTripSummary = "SELECT R.CUSTOMER_ID, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDEID, R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE(R.RIDE_START_TIME) AS PICKUP_DATE,	B.BILL_AMOUNT AS FARE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DESTINATION, TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME, RIGHT(CC.CARD_NUM,4) AS PAYMENT FROM CUSTOMER C, RIDES R, DRIVER D, BILLING B, CREDIT_CARDS CC WHERE R.CUSTOMER_ID = "
+			var getCustomerTripSummary = "SELECT R.CUSTOMER_ID, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDEID, R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE,	B.BILL_AMOUNT AS FARE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DESTINATION, TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME, RIGHT(CC.CARD_NUM,4) AS PAYMENT FROM CUSTOMER C, RIDES R, DRIVER D, BILLING B, CREDIT_CARDS CC WHERE R.CUSTOMER_ID = "
 			+ customer_id
 			+ " AND R.STATUS = 'E' AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.CUSTOMER_ID = B.CUSTOMER_ID AND R.DRIVER_ID = B.DRIVER_ID AND CONCAT(C.FIRST_NAME, ' ', C.LAST_NAME) = CC.CARD_HOLDER_NAME;";
 	

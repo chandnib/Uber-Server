@@ -34,10 +34,14 @@ exports.handle_request_createRide = function(msg, callback) {
 		if (err) {
 			throw err;
 		} else {
-			console.log("RESULTS" + results);
+			console.log("RESULTS" + JSON.stringify(results));
+			if(results.insertId >= 1)
+				{
 			res.code = 200;
 			res.value = results.insertId;
 			res.status = 'CR';
+				}
+			console.log("response object :" + JSON.stringify(res));
 			callback(null, res);
 		}
 	}, insertRide);

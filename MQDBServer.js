@@ -478,7 +478,7 @@ connection3.on('ready', function() {
 
 
 connection3.on('ready', function() {
-	connection.queue('uber_startRideQueue', function(q){
+	connection.queue('uber_startRide_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
@@ -520,7 +520,7 @@ connection3.on('ready', function() {
 
 
 connection3.on('ready', function() {
-	connection.queue('uber_endRideQueue', function(q){
+	connection.queue('uber_endRide_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
@@ -541,7 +541,7 @@ connection3.on('ready', function() {
 
 
 connection3.on('ready', function() {
-	connection.queue('uber_fetchRideStatusQueue', function(q){
+	connection.queue('uber_fetchRideStatus_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
@@ -562,7 +562,7 @@ connection3.on('ready', function() {
 
 
 connection3.on('ready', function() {
-	connection.queue('uber_getRideCreatedQueue', function(q){
+	connection.queue('uber_getRideCreated_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));

@@ -11,6 +11,7 @@ exports.saveCustomerRating = function(msg, callback) {
 	var rideId = msg.rideId;
 	var driverId = msg.driverId;
 	var rating = msg.rating;
+	var review = msg.review;
 	var json_responses;
 
 	mongo.connect(mongoURL, function() {
@@ -20,7 +21,8 @@ exports.saveCustomerRating = function(msg, callback) {
 			customerId : customerId,
 			_id : rideId,
 			driverId : driverId,
-			rating : rating
+			rating : rating,
+			review : review
 		}, function(err, result) {
 			if (err) {
 				console.log(result);
@@ -55,7 +57,8 @@ exports.saveDriverRating = function(msg, callback) {
 			customerId : customerId,
 			_id : rideId,
 			driverId : driverId,
-			rating : rating
+			rating : rating,
+			review : review
 		}, function(err, result) {
 			if (err) {
 				console.log(result);
@@ -77,15 +80,15 @@ exports.saveDriverRating = function(msg, callback) {
 
 exports.getDriverRating = function(msg, callback) {
 	var res = {};
-	var driverId = msg.driverId;
+	var driverIds = msg.driverId;
 	var json_responses;
-
+    for(i=0;i<=driverIds.length-1;i++){
 	mongo.connect(mongoURL, function() {
 		console.log('Connected to mongo at: ' + mongoURL);
 		var coll = mongo.collection('DriverRating');
 		coll.aggregate( [ {
 			$match : {
-				driverId : driverId
+				driverId : driverIds[i]
 			}
 		}, {
 			$group : {
@@ -99,16 +102,18 @@ exports.getDriverRating = function(msg, callback) {
 				console.log(result);
 				res.code = "401";
 				res.value = 'Unable to get rating for the Driver';
-				callback(null, res);
 			} else {
 				console.log(result);
 				res.code = "200";
-				res.value = result.avgRating;
-				callback(null, res);
+				res.value.push({"driverId":driverIds[i],"rating":result.avgRating});
+				
 			}
 		});
 
 	});
+	console.log("response is"+JSON.stringify(res));
+	callback(null, res);
+    }
 };
 
 
@@ -142,7 +147,7 @@ exports.getCustomerRating = function(msg, callback) {
 			} else {
 				console.log(result);
 				res.code = "200";
-				res.value = result.avgRating;
+				res.value.ratingArray = result.avgRating;
 				callback(null, res);
 			}
 		});

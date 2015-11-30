@@ -78,8 +78,6 @@ exports.generateBill = function(msg, callback) {
 													console.log("RESULTS"
 															+ results);
 													var time = msg.time;
-													var pickupTime = results[0].RIDE_START_TIME;
-													var dropOffTime = results[0].RIDE_END_TIME;
 													var distance_covered = msg.distance;
 													var sourceLocation = results[0].PICKUP_LOCATION;
 													var driverID = results[0].DRIVER_ID;
@@ -102,10 +100,6 @@ exports.generateBill = function(msg, callback) {
 													var insertBill = "INSERT INTO BILLING(BILL_DATE,PICKUP_TIME,DROPOFF_TIME,DISTANCE_COVERED,SOURCE_LOCATION,DRIVER_ID,CUSTOMER_ID,RIDE_ID,BILL_AMOUNT,BASE_FARE,DISTANCE_FARE,TIME_FARE) "
 															+ "VALUES(now()"
 															+ ",'"
-															+ pickupTime
-															+ "','"
-															+ dropOffTime
-															+ "','"
 															+ distance_covered
 															+ "','"
 															+ sourceLocation

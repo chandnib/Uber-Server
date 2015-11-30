@@ -39,7 +39,7 @@ connection.on('ready', function() {
 			util.log("loadUnverifiedCustomers => Message: "+JSON.stringify(message));
 			util.log("loadUnverifiedCustomers => DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			admin.loadUnverifiedCustomers(message, function(err,res){
-				//console.log("loadUnverifiedCustomers Response : " + JSON.stringify(res));
+				console.log("loadUnverifiedCustomers Response : " + JSON.stringify(res));
 				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
@@ -67,7 +67,6 @@ connection.on('ready', function() {
 		console.log("approveCustomer Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
 	connection.queue('rejectCustomer', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -85,7 +84,6 @@ connection.on('ready', function() {
 		console.log("approveCustomer Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
 	connection.queue('approveAllCustomer', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -103,7 +101,6 @@ connection.on('ready', function() {
 		console.log("approveCustomer Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
 	connection.queue('rejectAllCustomer', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -121,14 +118,14 @@ connection.on('ready', function() {
 		console.log("rejectAllCustomer Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
+	
 	connection.queue('loadUnverifiedDrivers', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("loadUnverifiedDrivers => Message: "+JSON.stringify(message));
 			util.log("loadUnverifiedDrivers => DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			admin.loadUnverifiedDrivers(message, function(err,res){
-				console.log("loadUnverifiedDrivers Response : ");
+				console.log("loadUnverifiedDrivers Response : " + JSON.stringify(res));
 				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
@@ -139,7 +136,6 @@ connection.on('ready', function() {
 		console.log("loadUnverifiedDrivers Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
 	connection.queue('approveDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -157,7 +153,7 @@ connection.on('ready', function() {
 		console.log("approveDriver Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
+	
 	connection.queue('rejectDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -175,7 +171,7 @@ connection.on('ready', function() {
 		console.log("approveDriver Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
+	
 	connection.queue('approveAllDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -193,7 +189,7 @@ connection.on('ready', function() {
 		console.log("approveDriver Queue Created!!! and listening to the Queue!");
 	});
 	
-	//changes
+	
 	connection.queue('rejectAllDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -492,14 +488,29 @@ connection2.on('ready', function() {
 		console.log("CreateDrivers Queue Created!!! and listening to the Queue!");
 	});
 	
-	connection2.queue('showDriverin10Mile_queue', function(q){
+});
+<<<<<<< HEAD
+	
+	//Ride Related Queues
+connection3.on('ready', function() {
+	connection3.queue('uber_createLocation_queue', function(q){
+=======
+connection2.on('ready', function() {
+	connection.queue('showDriverin10Mile_queue', function(q){
+>>>>>>> 4e9f1b219429da7ea589f3f5137076c907a67d13
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+<<<<<<< HEAD
+			rides.handle_request_createLocation(message, function(err,res){
+				console.log("createRides Response : " + JSON.stringify(res));
+				connection3.publish(messageHeader.replyTo, res, {
+=======
 			driver.showDriverin10Mile(message, function(err,res){
 				console.log("verifyUser Response : " + JSON.stringify(res));
-				connection2.publish(messageHeader.replyTo, res, {
+				connection.publish(messageHeader.replyTo, res, {
+>>>>>>> 4e9f1b219429da7ea589f3f5137076c907a67d13
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -509,28 +520,15 @@ connection2.on('ready', function() {
 		console.log("showDriverin10Mile Queue Created!!! and listening to the Queue!");
 	});
 	
+<<<<<<< HEAD
+	connection3.queue('uber_createRide_queue', function(q){
+=======
 });
-	
+
 //-----------------------------------------RIDES MODULE START-------------------------------------------------------------//
 connection3.on('ready', function() {
-	connection3.queue('uber_createLocation_queue', function(q){
-		q.subscribe(function(message, header, deliveryInfo, messageHeader){
-			util.log(util.format( deliveryInfo.routingKey, message));
-			util.log("Message: "+JSON.stringify(message));
-			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
-			rides.handle_request_createLocation(message, function(err,res){
-				console.log("createRides Response : " + JSON.stringify(res));
-				connection3.publish(messageHeader.replyTo, res, {
-					contentType:'application/json',
-					contentEncoding:'utf-8',
-					correlationId:messageHeader.correlationId
-				});
-			});
-		});
-		console.log("createRides Queue Created!!! and listening to the Queue!");
-	});
-	
-	connection3.queue('uber_createRide_queue', function(q){
+	connection.queue('uber_createRide_queue', function(q){
+>>>>>>> 4e9f1b219429da7ea589f3f5137076c907a67d13
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
@@ -581,14 +579,18 @@ connection3.on('ready', function() {
 		console.log("deleteRide Queue Created!!! and listening to the Queue!");
 	});
 	
-	connection3.queue('uber_startRide_queue', function(q){
+});
+
+
+connection3.on('ready', function() {
+	connection.queue('uber_startRide_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			rides.handle_request_startRide(message, function(err,res){
 				console.log("startRide Response : " + JSON.stringify(res));
-				connection3.publish(messageHeader.replyTo, res, {
+				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -598,14 +600,18 @@ connection3.on('ready', function() {
 		console.log("startRide Queue Created!!! and listening to the Queue!");
 	});
 	
-	connection3.queue('uber_cancelRide_queue', function(q){
+});
+
+
+connection3.on('ready', function() {
+	connection.queue('uber_cancelRide_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			rides.handle_request_cancelRide(message, function(err,res){
 				console.log("cancelRide Response : " + JSON.stringify(res));
-				connection3.publish(messageHeader.replyTo, res, {
+				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -615,14 +621,18 @@ connection3.on('ready', function() {
 		console.log("cancelRide Queue Created!!! and listening to the Queue!");
 	});
 	
-	connection3.queue('uber_endRide_queue', function(q){
+});
+
+
+connection3.on('ready', function() {
+	connection.queue('uber_endRide_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			rides.handle_request_endRide(message, function(err,res){
 				console.log("endRide Response : " + JSON.stringify(res));
-				connection3.publish(messageHeader.replyTo, res, {
+				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -632,14 +642,18 @@ connection3.on('ready', function() {
 		console.log("endRide Queue Created!!! and listening to the Queue!");
 	});
 	
-	connection3.queue('uber_fetchRideStatus_queue', function(q){
+});
+
+
+connection3.on('ready', function() {
+	connection.queue('uber_fetchRideStatus_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			rides.handle_request_fetchRideStatus(message, function(err,res){
 				console.log("fetchRideStatus Response : " + JSON.stringify(res));
-				connection3.publish(messageHeader.replyTo, res, {
+				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -649,14 +663,36 @@ connection3.on('ready', function() {
 		console.log("fetchRideStatus Queue Created!!! and listening to the Queue!");
 	});
 	
-	connection3.queue('uber_getRideCreated_queue', function(q){
+});
+connection2.on('ready', function() {
+	connection.queue('showDriverin10Mile_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			driver.showDriverin10Mile(message, function(err,res){
+				console.log("verifyUser Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("showDriverin10Mile Queue Created!!! and listening to the Queue!");
+	});
+	
+});
+
+connection3.on('ready', function() {
+	connection.queue('uber_getRideCreated_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			rides.handle_request_getRideCreated(message, function(err,res){
 				console.log("getRideCreatedQueue Response : " + JSON.stringify(res));
-				connection3.publish(messageHeader.replyTo, res, {
+				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -666,14 +702,18 @@ connection3.on('ready', function() {
 		console.log("getRideCreated Queue Created!!! and listening to the Queue!");
 	});
 	
-	connection3.queue('uber_getCustomerTripSummary_queue', function(q){
+});
+
+
+connection3.on('ready', function() {
+	connection.queue('uber_getCustomerTripSummary_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			rides.handle_request_getCustomerTripSummary(message, function(err,res){
 				console.log("getCustomerTripSummary Response : " + JSON.stringify(res));
-				connection3.publish(messageHeader.replyTo, res, {
+				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -688,9 +728,10 @@ connection3.on('ready', function() {
 //-----------------------------------------RIDES MODULE END-------------------------------------------------------------//
 
 
+
+
 //Call added for generating bill
 connection4.on('ready', function() {
-	
 	connection4.queue('uber_generateBill_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -708,14 +749,20 @@ connection4.on('ready', function() {
 		console.log("uber_generateBill_queue  Created!!! and listening to the Queue!");
 	});
 	
-	connection4.queue('uber_getFareEstimate_queue', function(q){
+});
+<<<<<<< HEAD
+=======
+
+
+connection4.on('ready', function() {
+	connection.queue('uber_getFareEstimate_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			billing.getFareEstimate(message, function(err,res){
 				console.log("getFareEstimate Response : " + JSON.stringify(res));
-				connection4.publish(messageHeader.replyTo, res, {
+				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -727,10 +774,8 @@ connection4.on('ready', function() {
 	
 });
 
-
 // Rating Calls Start from here by Parteek
 connection5.on('ready', function() {
-	
 	connection5.queue('uber_getCustomerRating_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -738,7 +783,7 @@ connection5.on('ready', function() {
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			billing.getCustomerRating(message, function(err,res){
 				console.log("getCustomerRating Response : " + JSON.stringify(res));
-				connection5.publish(messageHeader.replyTo, res, {
+				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -748,6 +793,9 @@ connection5.on('ready', function() {
 		console.log("uber_getCustomerRating_queue  Created!!! and listening to the Queue!");
 	});
 	
+});
+
+connection5.on('ready', function() {
 	connection5.queue('uber_getDriverRating_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -755,7 +803,7 @@ connection5.on('ready', function() {
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			billing.getDriverRating(message, function(err,res){
 				console.log("getDriverRating Response : " + JSON.stringify(res));
-				connection5.publish(messageHeader.replyTo, res, {
+				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -765,6 +813,9 @@ connection5.on('ready', function() {
 		console.log("uber_getDriverRating_queue  Created!!! and listening to the Queue!");
 	});
 	
+});
+
+connection5.on('ready', function() {
 	connection5.queue('uber_saveCustomerRating_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -772,24 +823,7 @@ connection5.on('ready', function() {
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 			billing.saveCustomerRating(message, function(err,res){
 				console.log("saveCustomerRating Response : " + JSON.stringify(res));
-				connection5.publish(messageHeader.replyTo, res, {
-					contentType:'application/json',
-					contentEncoding:'utf-8',
-					correlationId:messageHeader.correlationId
-				});
-			});
-		});
-		console.log("uber_saveCustomerRating_queue  Created!!! and listening to the Queue!");
-	});
-	
-	connection5.queue('uber_saveCustomerRating_queue', function(q){
-		q.subscribe(function(message, header, deliveryInfo, messageHeader){
-			util.log(util.format( deliveryInfo.routingKey, message));
-			util.log("Message: "+JSON.stringify(message));
-			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
-			billing.saveDriverRating(message, function(err,res){
-				console.log("saveDriverRating Response : " + JSON.stringify(res));
-				connection5.publish(messageHeader.replyTo, res, {
+				connection.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
 					correlationId:messageHeader.correlationId
@@ -800,5 +834,27 @@ connection5.on('ready', function() {
 	});
 	
 });
+
+connection5.on('ready', function() {
+	connection5.queue('uber_saveCustomerRating_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			billing.saveDriverRating(message, function(err,res){
+				console.log("saveDriverRating Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("uber_saveCustomerRating_queue  Created!!! and listening to the Queue!");
+	});
+	
+});
+
 //Rating Calls End here by Parteek
 
+>>>>>>> 4e9f1b219429da7ea589f3f5137076c907a67d13

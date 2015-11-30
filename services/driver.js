@@ -301,6 +301,30 @@ exports.updateDriver = function(msg, callback) {
 		console.log("updateDriver : Error : " + e);
 	}
 };
+exports.showDriverin10Mile = function(msg, callback) {
+	
+	var res = {};
+	
+	try {
+		var getCoordinates = "SELECT DRIVER_ID, LATITUDE, LONGITUDE, ACOS( SIN( RADIANS( LATITUDE ) ) * SIN( RADIANS("+ msg.latitude +") ) + COS( RADIANS( LATITUDE ) ) * COS( RADIANS("+ msg.latitude +")) * COS( RADIANS( LONGITUDE ) - RADIANS("+ msg.longitude +")) ) * 6380 AS distance FROM DRIVER_LOCATION WHERE ACOS( SIN( RADIANS( LATITUDE ) ) * SIN( RADIANS( " + msg.latitude +") ) + COS( RADIANS( LATITUDE ) ) * COS( RADIANS( "+  msg.latitude +" )) * COS( RADIANS( LONGITUDE ) - RADIANS( "+ msg.longitude +" )) ) * 6380 < 6.213 ORDER BY distance LIMIT 10";
+     	console.log(getCoordinates);
+     	mysql.fetchData(function(err, results){
+		if(err){
+			console.log("Error in fetching");
+			res.err  = err;
+			callback(err, res);
+		}
+		else
+		{			
+			console.log(" fetching success");
+			res.data = results;
+			callback(null, res);
+		}
+	},	getCoordinates);	
+	} catch (e) {
+		console.log("showDriverin10Mile : Error : " + e);
+	}
+};
 
 exports.aboutDriver = function(msg, callback) {
 	try {

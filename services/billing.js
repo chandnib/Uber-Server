@@ -82,14 +82,13 @@ exports.generateBill = function(msg, callback) {
 													var sourceLocation = results[0].PICKUP_LOCATION;
 													var driverID = results[0].DRIVER_ID;
 													var customerID = results[0].CUSTOMER_ID;
-													var distance = distance;
 													var time = time;
 													var basefare = 2.20;
 													var perMin = 0.26;
 													var perMile = 1.30;
 													var timeFare = time
 															* perMin;
-													var distanceFare = distance
+													var distanceFare = distance_covered
 															* perMile;
 													var totalFare = 2.20
 															+ timeFare

@@ -82,52 +82,69 @@ exports.getDriverRating = function(msg, callback) {
 	var res = {};
 	var driverIds = msg.driverId;
 	var json_responses;
-    for(i=0;i<=driverIds.length-1;i++){
 	mongo.connect(mongoURL, function() {
 		console.log('Connected to mongo at: ' + mongoURL);
 		var coll = mongo.collection('DriverRating');
-		coll.aggregate( [ {
-			$match : {
-				driverId : driverIds[i]
-			}
-		}, {
-			$group : {
-				_id : "",
-				avgRating : {
-					$avg : "$rating"
+		for (i = 0; i <= driverIds.length - 1; i++) {
+			coll.aggregate([ {
+				$match : {
+					driverId : driverIds[i]
 				}
-			}
-		} ]).toArray(function(err, result) {
+			}, {
+				$group : {
+					_id : "",
+					avgRating : {
+						$avg : "$rating"
+					}
+				}
+			} ]).toArray(function(err, result) {
+				if (err) {
+					console.log(result);
+					res.code = "401";
+					res.value = 'Unable to get rating for the Driver';
+				} else {
+					console.log(result);
+					res.code = "200";
+					res.value.driverRating.push({
+						"driverId" : driverIds[i],
+						"rating" : result.avgRating
+					});
+
+				}
+			});
+		coll.find({driverId:driverIds[i]}).toArray(function(err, result) {
 			if (err) {
 				console.log(result);
 				res.code = "401";
-				res.value = 'Unable to get rating for the Driver';
+				res.value = 'Unable to get reviews for the Driver';
 			} else {
 				console.log(result);
 				res.code = "200";
-				res.value.push({"driverId":driverIds[i],"rating":result.avgRating});
-				
+				res.value.driverReviews.push({
+					"driverId" : driverIds[i],
+					"review" : result.review
+				});
+
 			}
 		});
-
+		}
 	});
-	console.log("response is"+JSON.stringify(res));
-	callback(null, res);
-    }
-};
 
+	console.log("response is" + JSON.stringify(res));
+	callback(null, res);
+};
 
 /* Method for Getting Driver Rating by Parteek */
 
 exports.getCustomerRating = function(msg, callback) {
 	var res = {};
-	var driverId = msg.driverId;
+	var customerId = msg.customerId;
 	var json_responses;
 
 	mongo.connect(mongoURL, function() {
 		console.log('Connected to mongo at: ' + mongoURL);
 		var coll = mongo.collection('CustomerRating');
-		coll.aggregate( [ {
+		coll.aggregate([ {
 			$match : {
 				customerId : customerId
 			}
@@ -145,14 +162,26 @@ exports.getCustomerRating = function(msg, callback) {
 				res.value = 'Unable to get rating for the Driver';
 				callback(null, res);
 			} else {
-				console.log(result);
-				res.code = "200";
-				res.value.ratingArray = result.avgRating;
-				callback(null, res);
+				coll.find({customerId:customerId}).toArray(function(err, result) {
+					if (err) {
+						console.log(result);
+						res.code = "401";
+						res.value = 'Unable to get reviews for the Driver';
+					} else {
+						console.log(result);
+						res.code = "200";
+						res.value.rating = result.avgRating;
+						res.value.driverReviews.push({
+							"customerId" : customerId,
+							"review" : result.review
+						});
+						callback(null, res);
+
+					}
+				});
+				
 			}
 		});
 
 	});
 };
-
-

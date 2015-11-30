@@ -1,10 +1,10 @@
 var ejs= require('ejs');
 var mysql = require('mysql');
 
-var redis = require('redis');
-var client = redis.createClient('6379','127.0.0.1');
-if (typeof process.env.REDIS_PASSWORD)
-	client.auth('');
+//var redis = require('redis');
+//var client = redis.createClient('6379','127.0.0.1');
+//if (typeof process.env.REDIS_PASSWORD)
+//	client.auth('');
 
 
 
@@ -17,7 +17,7 @@ function getConnection(){
 		pool: false,
 		host     : 'localhost',
 		user     : 'root',
-		password : 'root',
+		password : 'admin123',
 		database : 'uberdb'//,
 			//  port	 : 8889
 	});
@@ -33,7 +33,7 @@ var pool  = mysql.createPool({
 		pool: false,
 		host     : 'localhost',
 		user     : 'root',
-		password : 'root',
+		password : 'admin123',
 		database : 'uberdb'
 	});
 

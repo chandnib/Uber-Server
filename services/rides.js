@@ -1,37 +1,44 @@
 var mysql = require('../routes/mysql');
 
-exports.handle_request_createLocation = function(msg, callback) {
-	var res = {};
-	console.log("inside create location");
-
-	var location = msg.location;
-	console.log("location: " + JSON.stringify(msg.location));
-	var insertLocation = "INSERT INTO LOCATION(`LATITUDE`, `LONGITUDE`, "
-			+ "`STREET_NUMBER`,`ROUTE`,`LOCALITY`,`CITY`,`STATE`,"
-			+ "`COUNTRY`,`POSTAL_CODE`) " + "VALUES(" + msg.latitude + ","
-			+ msg.longitude + ",'"
-			+ location[0].address_components[0].long_name + "','"
-			+ location[0].address_components[1].long_name + "','"
-			+ location[0].address_components[2].long_name + "','"
-			+ location[0].address_components[3].long_name + "','"
-			+ location[0].address_components[5].long_name + "','"
-			+ location[0].address_components[6].long_name + "','"
-			+ location[0].address_components[7].long_name + "');";
-	console.log("query is:" + insertLocation);
-
-	mysql.fetchData(function(err, results) {
-		if (err) {	
-			throw err;
-		} else {
-			console.log("RESULTS" + results);
-			res.code = 200;
-			res.value = results.insertId;
-			callback(null, res);
-		}
-	}, insertLocation);
-};
+//exports.handle_request_createLocation = function(msg, callback) {
+//	
+//	try{
+//	var res = {};
+//	console.log("inside create location");
+//
+//	var location = msg.location;
+//	console.log("location: " + JSON.stringify(msg.location));
+//	var insertLocation = "INSERT INTO LOCATION(`LATITUDE`, `LONGITUDE`, "
+//			+ "`STREET_NUMBER`,`ROUTE`,`LOCALITY`,`CITY`,`STATE`,"
+//			+ "`COUNTRY`,`POSTAL_CODE`) " + "VALUES(" + msg.latitude + ","
+//			+ msg.longitude + ",'"
+//			+ location[0].address_components[0].long_name + "','"
+//			+ location[0].address_components[1].long_name + "','"
+//			+ location[0].address_components[2].long_name + "','"
+//			+ location[0].address_components[3].long_name + "','"
+//			+ location[0].address_components[5].long_name + "','"
+//			+ location[0].address_components[6].long_name + "','"
+//			+ location[0].address_components[7].long_name + "');";
+//	console.log("query is:" + insertLocation);
+//
+//	mysql.fetchData(function(err, results) {
+//		if (err) {	
+//			throw err;
+//		} else {
+//			console.log("RESULTS" + results);
+//			res.code = 200;
+//			res.value = results.insertId;
+//			callback(null, res);
+//		}
+//	}, insertLocation);
+//	}catch(e){
+//		console.log("CreateLocation : Error : " + e);
+//	}
+//};
 
 exports.handle_request_createRide = function(msg, callback) {
+	
+	try{
 	var res = {};
 	console.log("inside create ride");
 
@@ -43,41 +50,51 @@ exports.handle_request_createRide = function(msg, callback) {
 	var pickup_longitude = msg.pickup_longitude;
 	var dropoff_latitude = msg.dropoff_latitude;
 	var dropoff_longitude = msg.dropoff_longitude;
+	var distance_covered = msg.distance_covered;
+	var total_time = msg.total_time;
 
-	var insertRide = "INSERT INTO RIDES(`PICKUP_LOCATION`,`DROPOFF_LOCATION`,`CUSTOMER_ID`,`DRIVER_ID`,`RIDE_EVENT_ID`,`STATUS`,`PICKUP_LATITUDE`,`PICKUP_LONGITUDE`,`DROPOFF_LATITUDE`,`DROPOFF_LONGITUDE`)VALUES('"
+	var insertRide = "INSERT INTO RIDES(`PICKUP_LOCATION`,`DROPOFF_LOCATION`,`CUSTOMER_ID`,`DRIVER_ID`,`RIDE_EVENT_ID`,`STATUS`,`PICKUP_LATITUDE`,`PICKUP_LONGITUDE`,`DROPOFF_LATITUDE`,`DROPOFF_LONGITUDE`,`DISTANCE_COVERED`,`TOTAL_TIME`)VALUES('"
 			+ pickup_location
 			+ "','"
 			+ dropoff_location
 			+ "',"
 			+ customer_id
-			+ "," + driver_id + "," + "43567" + "," + "'CR'," + pickup_latitude + "," + pickup_longitude + "," + dropoff_latitude + "," + dropoff_longitude + ");";
+			+ "," + driver_id + "," + "43567" + "," + "'CR'," + pickup_latitude + "," + pickup_longitude + "," + dropoff_latitude + "," + dropoff_longitude + "," + distance_covered + "," + total_time +");";
+	
 
 	console.log("query is:" + insertRide);
 
 	mysql.fetchData(function(err, results) {
 		if (err) {
-			throw err;
+			res.code = 401;
+			res.err  = err;
+			callback(err, res);
 		} else {
 			console.log("RESULTS" + JSON.stringify(results));
 			if(results.insertId >= 1)
 				{
 			res.code = 200;
 			res.status = 'CR';
-			console.log("response object : " + res);
 				}
 			else
-				res.code = 400;
-			
-			res.value = results.insertId;
+				{
+				res.code = 401;
+				res.err = "Unable to create Ride";
 				}
-			console.log("response object :" + JSON.stringify(res));
+			console.log("response object : " + res);
+				}
 			callback(null, res);
 		}, insertRide);
+	}catch(e){
+		console.log("createRide : Error : " + e);
+	}
 
 
 };
 
 exports.handle_request_editRide = function(msg, callback) {
+	
+	try{
 	var res = {};
 	console.log("inside edit ride");
 
@@ -86,62 +103,77 @@ exports.handle_request_editRide = function(msg, callback) {
 	var newdropoff_longitude = msg.newdropoff_longitude;
 	var customer_id = msg.customer_id;
 	var ride_id = msg.ride_id;
+	var distance_covered = msg.distance_covered;
+	var total_time = msg.total_time;
 
-	var editRide = "UPDATE RIDES SET DROPOFF_LOCATION = '"
-			+ newdropoff_address + "', DROPOFF_LATITUDE = " + newdropoff_latitude + ", DROPOFF_LONGITUDE=" + newdropoff_longitude + " WHERE CUSTOMER_ID = " + customer_id
-			+ " AND RIDE_END_TIME = '0000-00-00 00:00:00' AND ROW_ID = " + ride_id + ";";
+	var editRide = "UPDATE RIDES SET DROPOFF_LOCATION = '" + newdropoff_address
+			+ "', DROPOFF_LATITUDE = " + newdropoff_latitude
+			+ ", DROPOFF_LONGITUDE=" + newdropoff_longitude
+			+ ", DISTANCE_COVERED =" + distance_covered + ", TOTAL_TIME= "
+			+ total_time + " WHERE CUSTOMER_ID = " + customer_id
+			+ " AND RIDE_END_TIME = '0000-00-00 00:00:00' AND ROW_ID = "
+			+ ride_id + ";";
 
 	console.log("query is:" + editRide);
 
 	mysql.fetchData(function(err, results) {
 		if (err) {
-			throw err;
+			res.code = 401;
+			res.err  = err;
+			callback(err, res);
 		} else {
 			console.log("RESULTS" + JSON.stringify(results));
-			if(results.affectedRows >0)
+			if(results.affectedRows >0){
 				res.code = 200;
+				res.value = results;
+			}
 			else
-				res.code = 400;
-			res.value = results;
+				{
+				res.code = 401;
+				res.err = "Unable to edit ride";
+				}
 			console.log("response object : " + res);
 			callback(null, res);
 		}
 	}, editRide);
+	}catch(e){
+		console.log("editRide : Error : " + e);
+	}
 
 };
 
-exports.handle_request_deleteRide = function(msg,callback)
-{
-	var res= {};
-	console.log("inside delete ride" + msg.customer_id);
-	var customer_id = msg.customer_id;
-	
-	var deleteRide = "DELETE FROM RIDES WHERE CUSTOMER_ID = " + customer_id + " AND RIDE_END_TIME = '0000-00-00 00:00:00';";
-	
-	console.log("query is:" + deleteRide);
+//exports.handle_request_deleteRide = function(msg,callback)
+//{
+//	try{
+//	var res= {};
+//	console.log("inside delete ride" + msg.customer_id);
+//	var customer_id = msg.customer_id;
+//	
+//	var deleteRide = "DELETE FROM RIDES WHERE CUSTOMER_ID = " + customer_id + " AND RIDE_END_TIME = '0000-00-00 00:00:00';";
+//	
+//	console.log("query is:" + deleteRide);
+//
+//	mysql.fetchData(function(err, results) {
+//		if (err) {
+//			res.code = 401;
+//			res.err  = err;
+//			callback(err, res);
+//		} else {
+//			console.log("RESULTS" + results);
+//			res.code = 200;
+//			res.value = results;
+//			callback(null, res);
+//		}
+//	}, deleteRide);
+//	}catch(e){
+//		console.log("deleteRide : Error : " + e);
+//	}
+//};
 
-	mysql.fetchData(function(err, results) {
-		if (err) {
-			throw err;
-		} else {
-			console.log("RESULTS" + results);
-			res.code = 200;
-			res.value = results;
-			callback(null, res);
-		}
-	}, deleteRide);
-};
-
-exports.handle_request_searchRides = function(msg,callback)
-{
-	var res = {};
-	console.log("inside search rides" + msg.searchSpec);
-	
-	
-};
 
 exports.handle_request_startRide = function(msg,callback)
 {
+	try{
 	var res= {};
 	console.log("inside start ride" + msg.customer_id);
 	var ride_id = msg.ride_id;
@@ -152,23 +184,32 @@ exports.handle_request_startRide = function(msg,callback)
 
 	mysql.fetchData(function(err, results) {
 		if (err) {
-			throw err;
+			res.code = 401;
+			res.err  = err;
+			callback(err, res);
 		} else {
 			console.log("RESULTS" + JSON.stringify(results));
 			if(results.affectedRows > 0){
 				res.code = 200;
 				res.status = 'S';
+				res.value = results;
 			}
 			else
-				res.code = 400;
-			res.value = results;
+				{
+				res.code = 401;
+				res.err = "Unable to start ride"
+				}
 			callback(null, res);
 		}
 	}, startRide);
+	}catch(e){
+		console.log("startRide : Error : " + e);
+	}
 };
 
 exports.handle_request_cancelRide = function(msg,callback)
 {
+	try{
 	var res= {};
 	console.log("inside cancel ride" + msg.ride_id);
 	var ride_id = msg.ride_id;
@@ -179,24 +220,34 @@ exports.handle_request_cancelRide = function(msg,callback)
 
 	mysql.fetchData(function(err, results) {
 		if (err) {
-			throw err;
+			res.code = 401;
+			res.err  = err;
+			callback(err, res);
 		} else{
 			console.log("RESULTS" + JSON.stringify(results));
 			if(results.affectedRows > 0){
 				res.code = 200;
 				res.status = 'CA';
+				res.value = results;
 			}
 			else
-				res.code = 400;
-			res.value = results;
+				{
+				res.code = 401;
+				res.err = "Unable to cancel Ride";
+				}
 			console.log("response object : " + JSON.stringify(res));
 			callback(null, res);
 		}
 	}, cancelRide);
+	
+	}catch(e){
+		console.log("cancelRide : Error : " + e);
+	}
 };
 
 exports.handle_request_endRide = function(msg,callback)
 {
+	try{
 	var res= {};
 	console.log("inside end ride" + msg.ride_id);
 	var ride_id = msg.ride_id;
@@ -207,24 +258,33 @@ exports.handle_request_endRide = function(msg,callback)
 
 	mysql.fetchData(function(err, results) {
 		if (err) {
-			throw err;
+			res.code = 401;
+			res.err  = err;
+			callback(err, res);
 		} else {
 			console.log("RESULTS" + JSON.stringify(results));
 			if(results.affectedRows > 0){
 				res.code = 200;
 				res.status = 'E';
+				res.value = results;
 			}
 			else
-				res.code = 400;
-			res.value = results;
+				{
+				res.code = 401;
+				res.err = "Unable to end ride";
+				}
 			console.log("response object : " + JSON.stringify(res));
 			callback(null, res);
 		}
 	}, endRide);
+	}catch(e){
+		console.log("endRide : Error : " + e);
+	}
 };
 
 exports.handle_request_fetchRideStatus = function(msg,callback)
 {
+	try{
 	var res= {};
 	console.log("inside end ride" + msg.ride_id);
 	var ride_id = msg.ride_id;
@@ -235,7 +295,9 @@ exports.handle_request_fetchRideStatus = function(msg,callback)
 
 	mysql.fetchData(function(err, results) {
 		if (err) {
-			throw err;
+			res.code = 401;
+			res.err  = err;
+			callback(err, res);
 		} else {
 			console.log("RESULTS" + JSON.stringify(results));
 			res.code = 200;
@@ -244,10 +306,14 @@ exports.handle_request_fetchRideStatus = function(msg,callback)
 			callback(null, res);
 		}
 	}, fetchRideStatus);
+	}catch(e){
+		console.log("fetchRideStatus : Error : " + e);
+	}
 };
 
 exports.handle_request_getRideCreated = function(msg,callback)
 {
+	try{
 	var res= {};
 	console.log("inside getRideCreated" + msg.driver_id);
 	var driver_id = msg.driver_id;
@@ -262,7 +328,9 @@ exports.handle_request_getRideCreated = function(msg,callback)
 
 	mysql.fetchData(function(err, results) {
 		if (err) {
-			throw err;
+			res.code = 401;
+			res.err  = err;
+			callback(err, res);
 		} else {
 			console.log("RESULTS" + JSON.stringify(results));
 			res.code = 200;
@@ -271,10 +339,14 @@ exports.handle_request_getRideCreated = function(msg,callback)
 			callback(null, res);
 		}
 	}, getDetails);
+	}catch(e){
+		console.log("getRideCreated : Error : " + e);
+	}
 };
 
 exports.handle_request_getCustomerTripSummary = function(msg,callback)
 {
+	try{
 	var res= {};
 	console.log("inside handle_request_getCustomerTripSummary" + msg.customer_id);
 	var customer_id = msg.customer_id;
@@ -282,15 +354,17 @@ exports.handle_request_getCustomerTripSummary = function(msg,callback)
 	
 
 
-			var getCustomerTripSummary = "SELECT R.CUSTOMER_ID, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDEID, R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE,	B.BILL_AMOUNT AS FARE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DESTINATION, TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME, RIGHT(CC.CARD_NUM,4) AS PAYMENT FROM CUSTOMER C, RIDES R, DRIVER D, BILLING B, CREDIT_CARDS CC WHERE R.CUSTOMER_ID = "
+			var getCustomerTripSummary = "SELECT R.CUSTOMER_ID, R.STATUS, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDEID, R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE,	B.BILL_AMOUNT AS FARE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DESTINATION, TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME, RIGHT(CC.CARD_NUM,4) AS PAYMENT FROM CUSTOMER C, RIDES R, DRIVER D, BILLING B, CREDIT_CARDS CC WHERE R.CUSTOMER_ID = "
 			+ customer_id
-			+ " AND R.STATUS = 'E' AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.CUSTOMER_ID = B.CUSTOMER_ID AND R.DRIVER_ID = B.DRIVER_ID AND  C.CREDIT_CARD_ID = CC.ROW_ID;";
+			+ " AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.CUSTOMER_ID = B.CUSTOMER_ID AND R.DRIVER_ID = B.DRIVER_ID AND  C.CREDIT_CARD_ID = CC.ROW_ID;";
 	
 	console.log("query is:" + getCustomerTripSummary);
 
 	mysql.fetchData(function(err, results) {
 		if (err) {
-			throw err;
+			res.code = 401;
+			res.err  = err;
+			callback(err, res);
 		} else {
 			console.log("RESULTS" + JSON.stringify(results));
 			res.code = 200;
@@ -299,4 +373,41 @@ exports.handle_request_getCustomerTripSummary = function(msg,callback)
 			callback(null, res);
 		}
 	}, getCustomerTripSummary);
+	}catch(e){
+		console.log("getCustomerTripSummary : Error : " + e);
+	}
+};
+
+exports.handle_request_getDriverTripSummary = function(msg,callback)
+{
+	try{
+	var res= {};
+	console.log("inside handle_request_getDriverTripSummary" + msg.customer_id);
+	var driver_id = msg.driver_id;
+	
+	
+
+
+			var getDriverTripSummary = "SELECT R.CUSTOMER_ID, R.STATUS, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDEID, R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE,	B.BILL_AMOUNT AS FARE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DROPOFF_LOCATION, TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME, RIGHT(CC.CARD_NUM,4) AS PAYMENT FROM CUSTOMER C, RIDES R, DRIVER D, BILLING B, CREDIT_CARDS CC WHERE R.DRIVER_ID = "
+			+ driver_id
+			+ " AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.CUSTOMER_ID = B.CUSTOMER_ID AND R.DRIVER_ID = B.DRIVER_ID AND C.CREDIT_CARD_ID = CC.ROW_ID;";
+	
+	console.log("query is:" + getDriverTripSummary);
+
+	mysql.fetchData(function(err, results) {
+		if (err) {
+			res.code = 401;
+			res.err  = err;
+			callback(err, res);
+		} else {
+			console.log("RESULTS" + JSON.stringify(results));
+			res.code = 200;
+			res.value = results;
+			console.log("response object : " + JSON.stringify(res));
+			callback(null, res);
+		}
+	}, getDriverTripSummary);
+	}catch(e){
+		console.log("getDriverTripSummary : Error : " + e);
+	}
 };

@@ -246,6 +246,77 @@ connection.on('ready', function() {
 		console.log("loadDriverDetail Queue Created!!! and listening to the Queue!");
 	});
 	
+	
+	// ---Rekha Admin Module ------------------------------------------------------------------
+
+	connection.queue('totalrideStats', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("totalrideStats => Message: "+JSON.stringify(message));
+			util.log("totalrideStats => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.totalrideStats(message, function(err,res){
+				//console.log("loadUnverifiedCustomers Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("totalrideStats Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('cutomerrideStats', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("cutomerrideStats => Message: "+JSON.stringify(message));
+			util.log("cutomerrideStats => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.cutomerrideStats(message, function(err,res){
+				//console.log("loadUnverifiedCustomers Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("cutomerrideStats Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('driverrideStats', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("driverrideStats => Message: "+JSON.stringify(message));
+			util.log("driverrideStats => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.driverrideStats(message, function(err,res){
+				//console.log("loadUnverifiedCustomers Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("driverrideStats Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection.queue('revenueStats', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("revenueStats => Message: "+JSON.stringify(message));
+			util.log("revenueStats => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.revenueStats(message, function(err,res){
+				//console.log("loadUnverifiedCustomers Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("revenueStats Queue Created!!! and listening to the Queue!");
+	});
+	
 	// Search Bill for Admin
 	connection.queue('searchBill', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){

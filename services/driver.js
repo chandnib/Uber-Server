@@ -306,7 +306,7 @@ exports.showDriverin10Mile = function(msg, callback) {
 	var res = {};
 	
 	try {
-		var getCoordinates = "SELECT DRIVER_ID, LATITUDE, LONGITUDE, ACOS( SIN( RADIANS( LATITUDE ) ) * SIN( RADIANS("+ msg.latitude +") ) + COS( RADIANS( LATITUDE ) ) * COS( RADIANS("+ msg.latitude +")) * COS( RADIANS( LONGITUDE ) - RADIANS("+ msg.longitude +")) ) * 6380 AS distance FROM DRIVER_LOCATION WHERE ACOS( SIN( RADIANS( LATITUDE ) ) * SIN( RADIANS( " + msg.latitude +") ) + COS( RADIANS( LATITUDE ) ) * COS( RADIANS( "+  msg.latitude +" )) * COS( RADIANS( LONGITUDE ) - RADIANS( "+ msg.longitude +" )) ) * 6380 < 6.213 ORDER BY distance LIMIT 10";
+		var getCoordinates = "SELECT D.FIRST_NAME, D.LAST_NAME, D.IMAGE_URL, C.CAR_MODEL, C.COLOR, C.YEAR, D.VIDEO_URL, L.DRIVER_ID, L.LATITUDE, L.LONGITUDE, ACOS( SIN( RADIANS( LATITUDE ) ) * SIN( RADIANS("+ msg.latitude +") ) + COS( RADIANS( LATITUDE ) ) * COS( RADIANS("+ msg.latitude +")) * COS( RADIANS( LONGITUDE ) - RADIANS("+ msg.longitude +")) ) * 6380 AS distance FROM DRIVER_LOCATION AS L, DRIVER AS D, CARS AS C WHERE D.ROW_ID = L.DRIVER_ID AND D.CAR_ID = C.ROW_ID AND ACOS( SIN( RADIANS( LATITUDE ) ) * SIN( RADIANS( " + msg.latitude +") ) + COS( RADIANS( LATITUDE ) ) * COS( RADIANS( "+  msg.latitude +" )) * COS( RADIANS( LONGITUDE ) - RADIANS( "+ msg.longitude +" )) ) * 6380 < 6.213 AND STATUS = 'A' ORDER BY distance LIMIT 10";
      	console.log(getCoordinates);
      	mysql.fetchData(function(err, results){
 		if(err){
@@ -316,7 +316,7 @@ exports.showDriverin10Mile = function(msg, callback) {
 		}
 		else
 		{			
-			console.log(" fetching success");
+			console.log(" fetching success" );
 			res.data = results;
 			callback(null, res);
 		}

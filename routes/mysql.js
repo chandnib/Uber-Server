@@ -1,12 +1,23 @@
 var ejs= require('ejs');
 var mysql = require('mysql');
 
+<<<<<<< Upstream, based on origin/master
 //redis 
 var redis = require('redis');
+=======
+/*var redis = require('redis');
+>>>>>>> 6bf0e51 Rekha - Latest chnges with admin modules
 var client = redis.createClient('6379','127.0.0.1');
 if (typeof process.env.REDIS_PASSWORD)
+<<<<<<< Upstream, based on origin/master
 	client.auth('');
 	
+=======
+	client.auth('');*/
+
+
+
+>>>>>>> 6bf0e51 Rekha - Latest chnges with admin modules
 //Changes
 function getConnection(){
 	var connection = mysql.createConnection({
@@ -16,7 +27,7 @@ function getConnection(){
 		pool: false,
 		host     : 'localhost',
 		user     : 'root',
-		password : 'root',
+		password : 'rootpwd1',
 		database : 'uberdb'//,
 			//  port	 : 8889
 	});
@@ -32,7 +43,7 @@ var pool  = mysql.createPool({
 	  connectTimeout: 6000,
 		host     : 'localhost',
 		user     : 'root',
-		password : 'root',
+		password : 'rootpwd1',
 		database : 'uberdb'
 });
 
@@ -98,7 +109,7 @@ function fetchData(callback,sqlQuery){
 			}
 			else 
 			{	// return err or result
-				console.log("DB Results:"+rows);
+				console.log("DB Results:"+rows.length);
 				connection.release();
 				console.log("\nConnection closed..");
 				callback(err, rows);

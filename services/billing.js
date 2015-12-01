@@ -2,7 +2,7 @@ var mongo = require("../routes/mongo");
 var mongoURL = "mongodb://localhost:27017/UberPrototypeDB";
 var async = require('async');
 var ObjectId = require('mongodb').ObjectID;
-var dynamicPriceAlgo = require('./services/dynamicPricingAlgo');
+var dynamicPriceAlgo = require('../services/dynamicPricingAlgo');
 var mysql = require("../routes/mysql");
 
 var self = this;
@@ -12,34 +12,39 @@ exports.getFareEstimate = function(msg, callback) {
 	console.log("inside Fare Estimate");
 
 	var distance = msg.distance;
-	var latitude = msg.latitude;
-	var longitude = msg.longitude;
-	var surCharge = dynamicPriceAlgo.getPricingSurcharge(latitude,longitude);
-	var time = msg.time;
-	var Basefare = 2.20;
-	var perMin = 0.26;
-	var perMile = 1.30;
-	var totalFare = 2.20 + (time * perMin) + (distance * perMile);
-	console.log("Fare Estimate is " + totalFare);
-	console.log("Surcharge is " + Surcharge);
-	if (surcharge != 0) {
-		totalFare = totalFare*surcharge;
-	}
-	// Check whether fare is less then minimum fare
-	if (totalFare < 5.35) {
-		res.fare = 5.35
-		res.code = 200;
-	} else {
-		res.fare = totalFare;
-		res.code = 200;
-	}
-	callback(null, res);
+	var latitude = 37.241926;
+	var longitude = -121.84530799999999;
+	dynamicPriceAlgo.getPricingSurcharge(latitude,longitude,function(error,surcharge){
+		var time = msg.time;
+		var Basefare = 2.20;
+		var perMin = 0.26;
+		var perMile = 1.30;
+		var totalFare = 2.20 + (time * perMin) + (distance * perMile);
+		console.log("Fare Estimate is " + totalFare);
+		//console.log("Surcharge is " + Surcharge);
+		if(error==null){
+		if (surcharge != 0 ) {
+			totalFare = totalFare*surcharge;
+		}
+		}
+		// Check whether fare is less then minimum fare
+		if (totalFare < 5.35) {
+			res.fare = 5.35
+			res.code = 200;
+			res.surcharge = surcharge;
+		} else {
+			res.fare = totalFare;
+			res.code = 200;
+			res.surcharge = surcharge;
+		}
+		callback(null, res);
+	});
+	
 };
 
 calculateBill = function(distance, time, surcharge) {
 
 	console.log("inside calculate bill");
-
 	var distance = distance;
 	var time = time;
 	var Basefare = 2.20;
@@ -104,10 +109,10 @@ exports.generateBill = function(msg, callback) {
 													var totalFare = 2.20
 															+ timeFare
 															+ distanceFare;
-													var surCharge = dynamicPriceAlgo.getPricingSurcharge(results[0].PICKUP_LATITUDE,results[0].PICKUP_LONGITUDE);
+													dynamicPriceAlgo.getPricingSurcharge(results[0].PICKUP_LATITUDE,results[0].PICKUP_LONGITUDE,function(error,surcharge){
 													var billAmount = calculateBill(
 															distance_covered,
-															time, surCharge);
+															time, surcharge);
 													var insertBill = "INSERT INTO BILLING(BILL_DATE,DISTANCE_COVERED,SOURCE_LOCATION,DESTINATION_LOCATION,DRIVER_ID,CUSTOMER_ID,RIDE_ID,BILL_AMOUNT,BASE_FARE,DISTANCE_FARE,TIME_FARE,SURCHARGE) "
 															+ "VALUES(now(), '"
 															+ distance_covered
@@ -130,7 +135,7 @@ exports.generateBill = function(msg, callback) {
 															+ "','"
 															+ timeFare
 															+ "','"
-															+ surCharge
+															+ surcharge
 															+ "');";
 
 													console.log("query is:"
@@ -166,6 +171,7 @@ exports.generateBill = function(msg, callback) {
 																														+ results);
 																										res.code = 200;
 																										res.value = results;
+																										res.surcharge = surcharge ;
 																										callback(
 																												null,
 																												res);
@@ -177,7 +183,7 @@ exports.generateBill = function(msg, callback) {
 																		}
 																	},
 																	insertBill);
-
+													})
 												}
 											}, getRide);
 						}

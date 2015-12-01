@@ -1,6 +1,4 @@
-var amqp = require('amqp');
-var connection = amqp.createConnection({host:'127.0.0.1'});
-var rpc = new (require('../rpc/amqprpc'))(connection);
+var driver = require('./driver');
 
 var pricingConfig = {
 		time_of_day : true,
@@ -36,7 +34,7 @@ function dateCompare(time1,time2) {
 	return 0;
 }
 
-exports.getPricingSurcharge = function(latitude,longitude){
+exports.getPricingSurcharge = function(latitude,longitude,callback){
 	//var latitude  = 37.340634;
 	//var longitude = -121.900036 ;
 	var latlongArr = [];
@@ -157,7 +155,7 @@ exports.getPricingSurcharge = function(latitude,longitude){
 					var currDateStr = currDate.getFullYear()+"-"+(currDate.getMonth()+1) + "-" + currDate.getDate();//"2015-10-01
 					currDateStr += "T" + (currDate.getHours()-timespan) + ":" + currDate.getMinutes() + ":" + currDate.getSeconds() + "." + currDate.getMilliseconds() + "Z"//T08:00:00.000Z"
 					var mongoRequests = "mongodb://localhost:27017/requests";
-					var mongo = require("./mongo");
+					var mongo = require("../routes/mongo");
 					console.log("Date Generated !! +> " + currDateStr)
 					try{
 						mongo.connect(mongoRequests, function() {
@@ -179,7 +177,7 @@ exports.getPricingSurcharge = function(latitude,longitude){
 												latitude: latitude,
 												longitude: longitude
 										};
-										rpc.makeRequest("showDriverin10Mile_queue", data, function(err, user) {
+										driver.showDriverin10Mile(data, function(err, user) {
 											console.log("Driver in the Area : " + user.data.length);
 											if (err) {
 												console.log("There is an error: " + err);
@@ -188,11 +186,11 @@ exports.getPricingSurcharge = function(latitude,longitude){
 													surcharge += Number(DriverSurcharge);
 												}
 											}
-											res.status(200).send(surcharge.toString());
+										 callback(null,surcharge);
 										});
 									}catch(e){
 									 console.log(e);
-									 res.status(404).send("Error");
+									 callback(e,surcharge)
 									}
 								}
 								

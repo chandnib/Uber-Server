@@ -228,7 +228,7 @@ exports.aboutUser = function(msg, callback){
 		verifyCustomerQuery = mysql.formatSQLStatment(verifyCustomerQuery,inserts);
 		mysql.fetchData(function(err,user){
 			if(!err){
-				if(user != null){
+				if(user[0] != null){
 					if(user[0].VERIFIED == 1){
 						console.log("User Found And Verfied " + JSON.stringify(user[0]));
 						res = user[0];
@@ -327,7 +327,6 @@ exports.CreateCustomer = function(msg, callback){
 									}else{
 										//User Not Found so added to the system
 										res.code = "401";
-
 										callback(err, res);
 									}
 								}else{

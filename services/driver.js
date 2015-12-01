@@ -269,7 +269,7 @@ exports.updateDriver = function(msg, callback) {
 					+ results[0].CAR_ID + "';";*/
 					
 					var getUser = "UPDATE DRIVER SET FIRST_NAME = ?, LAST_NAME= ?, ADDRESS = ?, CITY= ?, STATE= ?, ZIPCODE= ?, EMAIL= ?, PHONE_NUM= ?, PASSWORD = ? WHERE EMAIL= ?;";
-					getUser += "UPDATE CARS SET CAR_MODEL= ?, COLOR=?', YEAR =? WHERE CARS.ROW_ID= ?;";
+					getUser += "UPDATE `CARS` SET `CAR_MODEL` = ?, `COLOR`=?, `YEAR` =? WHERE `ROW_ID`= ?;";
 					var inserts = [msg.FIRSTNAME,msg.LASTNAME,msg.ADDRESS,msg.CITY, msg.STATE,msg.ZIPCODE,msg.EMAIL, msg.PHONENUMBER,msg.PASSWORD,msg.OLDEMAIL,msg.CARMODEL, msg.CARCOLOR,msg.CARYEAR,results[0].CAR_ID];
 					getUser = mysql.formatSQLStatment(getUser,inserts);
 					console.log("Query is:" + getUser);

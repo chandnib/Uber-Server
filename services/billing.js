@@ -2,7 +2,7 @@ var mongo = require("../routes/mongo");
 var mongoURL = "mongodb://localhost:27017/UberPrototypeDB";
 var async = require('async');
 var ObjectId = require('mongodb').ObjectID;
-
+var dynamicPriceAlgo = require('./services/dynamicPricingAlgo');
 var mysql = require("../routes/mysql");
 
 var self = this;
@@ -12,12 +12,19 @@ exports.getFareEstimate = function(msg, callback) {
 	console.log("inside Fare Estimate");
 
 	var distance = msg.distance;
+	var latitude = msg.latitude;
+	var longitude = msg.longitude;
+	var surCharge = dynamicPriceAlgo.getPricingSurcharge(latitude,longitude);
 	var time = msg.time;
 	var Basefare = 2.20;
 	var perMin = 0.26;
 	var perMile = 1.30;
 	var totalFare = 2.20 + (time * perMin) + (distance * perMile);
 	console.log("Fare Estimate is " + totalFare);
+	console.log("Surcharge is " + Surcharge);
+	if (surcharge != 0) {
+		totalFare = totalFare*surcharge;
+	}
 	// Check whether fare is less then minimum fare
 	if (totalFare < 5.35) {
 		res.fare = 5.35
@@ -29,7 +36,7 @@ exports.getFareEstimate = function(msg, callback) {
 	callback(null, res);
 };
 
-calculateBill = function(distance, time) {
+calculateBill = function(distance, time, surcharge) {
 
 	console.log("inside calculate bill");
 
@@ -40,6 +47,9 @@ calculateBill = function(distance, time) {
 	var perMile = 1.30;
 	var totalFare = 2.20 + (time * perMin) + (distance * perMile);
 	console.log("Total Bill is " + totalFare);
+	if (surcharge != 0) {
+		totalFare = totalFare * surcharge;
+	}
 	// Check whether fare is less then minimum fare
 	if (totalFare < 5.35) {
 		return 5.35;
@@ -94,10 +104,11 @@ exports.generateBill = function(msg, callback) {
 													var totalFare = 2.20
 															+ timeFare
 															+ distanceFare;
+													var surCharge = dynamicPriceAlgo.getPricingSurcharge(results[0].PICKUP_LATITUDE,results[0].PICKUP_LONGITUDE);
 													var billAmount = calculateBill(
 															distance_covered,
-															time);
-													var insertBill = "INSERT INTO BILLING(BILL_DATE,DISTANCE_COVERED,SOURCE_LOCATION,DESTINATION_LOCATION,DRIVER_ID,CUSTOMER_ID,RIDE_ID,BILL_AMOUNT,BASE_FARE,DISTANCE_FARE,TIME_FARE) "
+															time, surCharge);
+													var insertBill = "INSERT INTO BILLING(BILL_DATE,DISTANCE_COVERED,SOURCE_LOCATION,DESTINATION_LOCATION,DRIVER_ID,CUSTOMER_ID,RIDE_ID,BILL_AMOUNT,BASE_FARE,DISTANCE_FARE,TIME_FARE,SURCHARGE) "
 															+ "VALUES(now(), '"
 															+ distance_covered
 															+ "','"
@@ -118,6 +129,8 @@ exports.generateBill = function(msg, callback) {
 															+ distanceFare
 															+ "','"
 															+ timeFare
+															+ "','"
+															+ surCharge
 															+ "');";
 
 													console.log("query is:"

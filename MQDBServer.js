@@ -828,6 +828,23 @@ connection1.on('ready', function() {
 		console.log("uploadProfilePic Queue Created!!! and listening to the Queue!");
 	});
 	
+	connection1.queue('uploadEventRidePic', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("uploadEventRidePic Message: "+JSON.stringify(message));
+			util.log("uploadEventRidePic DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			customer.uploadEventRidePic(message, function(err,res){
+				console.log("uploadEventRidePic Response : " + JSON.stringify(res));
+				connection1.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("uploadEventRidePic Queue Created!!! and listening to the Queue!");
+	});
+	
 	connection1.queue('CreateCustomer', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));

@@ -8,11 +8,13 @@ var self=this;
 
 exports.verifyUser = function(msg, callback){
 	try{
-		var verifyUserQuery = "select * from ADMIN where EMAIL = '" + msg.EMAIL + "'";
+		var queryVerifyAdmin = "select * from ADMIN where EMAIL = ? AND PASSWORD = SHA1(?)";
+		var inserts = [msg.EMAIL, msg.PASSWORD];
+		queryVerifyAdmin = mysql.formatSQLStatment(queryVerifyAdmin,inserts);
 		var res = {};
 		mysql.fetchData(function(err,user){
 			if(!err){
-				if(user != null){
+				if(user[0] != null){
 					console.log("User Found !! " + JSON.stringify(user[0]));
 					delete user[0].PASSWORD
 					res = user[0];
@@ -30,7 +32,7 @@ exports.verifyUser = function(msg, callback){
 				res.err  = err;
 				callback(err, res);
 			}
-		},verifyUserQuery);
+		},queryVerifyAdmin);
 	}catch(e){
 		console.log("verifyUser : Error : " + e);
 	}

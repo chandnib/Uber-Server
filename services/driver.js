@@ -10,8 +10,8 @@ exports.verifyUser = function(msg, callback) {
 	try {
 		var res = {};
 /*		var queryInsertDriver = "select * from DRIVER where EMAIL = '" + msg.EMAIL + "'";*/
-		var queryInsertDriver = "select * from DRIVER where EMAIL = ? ";
-		var inserts = [msg.EMAIL];
+		var queryInsertDriver = "select * from DRIVER where EMAIL = ? AND PASSWORD = SHA1(?)";
+		var inserts = [msg.EMAIL, msg.PASSWORD];
 		queryInsertDriver = mysql.formatSQLStatment(queryInsertDriver,inserts);
 		mysql.fetchData(
 				function(err, user) {
@@ -107,7 +107,7 @@ exports.addDriver = function(msg, callback) {
 													+ "','"
 													+ msg.MOBILENUMBER
 													+ "');"*/
-												var insertCarQuery = "INSERT INTO DRIVER (CAR_ID,FIRST_NAME,LAST_NAME,ADDRESS,CITY,STATE,ZIPCODE,EMAIL,PASSWORD,PHONE_NUM) VALUES (?,?,?,?,?,?,?,?,?,?);"
+												var insertCarQuery = "INSERT INTO DRIVER (CAR_ID,FIRST_NAME,LAST_NAME,ADDRESS,CITY,STATE,ZIPCODE,EMAIL,PASSWORD,PHONE_NUM) VALUES (?,?,?,?,?,?,?,?,SHA1(?),?);"
 												var inserts = [carID,msg.FIRSTNAME,msg.LASTNAME,msg.ADDRESS,msg.CITY,msg.STATE,msg.ZIPCODE,msg.EMAIL,msg.PASSWORD,msg.MOBILENUMBER];
 												insertCarQuery = mysql.formatSQLStatment(insertCarQuery,inserts);
 													mysql.fetchData(
@@ -208,6 +208,7 @@ exports.updateDriver = function(msg, callback) {
 		var getUser = "select * from DRIVER, CARS where EMAIL= ? AND DRIVER.CAR_ID = CARS.ROW_ID";
 		console.log("Query is:" + getUser);
 		console.log("msg: " + msg.FIRSTNAME)
+		var updateQuery = "";
 		var inserts = [msg.OLDEMAIL];
 		getUser = mysql.formatSQLStatment(getUser,inserts);
 		mysql.fetchData(function(err, results) {
@@ -253,8 +254,11 @@ exports.updateDriver = function(msg, callback) {
 					}
 					if (!msg.PASSWORD) {
 						msg.PASSWORD = results[0].PASSWORD;
+						updateQuery = "UPDATE DRIVER SET FIRST_NAME = ?, LAST_NAME= ?, ADDRESS = ?, CITY= ?, STATE= ?, ZIPCODE= ?, EMAIL= ?, PHONE_NUM= ?, PASSWORD = ? WHERE EMAIL= ?;";
+						updateQuery += "UPDATE CARS SET CAR_MODEL= ?, COLOR=?, YEAR =? WHERE ROW_ID= ?;";
 					}
-					
+					else
+					{
 					/*var getUser = "UPDATE DRIVER SET FIRST_NAME ='"
 						+ msg.FIRSTNAME + "', LAST_NAME='" + msg.LASTNAME
 						+ "', ADDRESS ='" + msg.ADDRESS + "', CITY='"
@@ -263,15 +267,16 @@ exports.updateDriver = function(msg, callback) {
 						+ msg.EMAIL + "', PHONE_NUM='" + msg.PHONENUMBER
 						+ "', PASSWORD='" + msg.PASSWORD
 						+ "' WHERE EMAIL='" + msg.OLDEMAIL + "';";
-					getUser += "UPDATE CARS SET CAR_MODEL='" + msg.CARMODEL
-					+ "', COLOR='" + msg.CARCOLOR + "', YEAR ='"
-					+ msg.CARYEAR + "'WHERE CARS.ROW_ID= '"
-					+ results[0].CAR_ID + "';";*/
+					getUser += " UPDATE CARS SET CAR_MODEL='" + msg.CARMODEL
+					+ "', COLOR='" + msg.CARCOLOR + "', YEAR ="
+					+ msg.CARYEAR + " WHERE CARS.ROW_ID= "
+					+ results[0].CAR_ID + ";";*/
 					
-					var getUser = "UPDATE DRIVER SET FIRST_NAME = ?, LAST_NAME= ?, ADDRESS = ?, CITY= ?, STATE= ?, ZIPCODE= ?, EMAIL= ?, PHONE_NUM= ?, PASSWORD = ? WHERE EMAIL= ?;";
-					getUser += "UPDATE CARS SET CAR_MODEL= ?, COLOR=?', YEAR =? WHERE CARS.ROW_ID= ?;";
+					updateQuery = "UPDATE DRIVER SET FIRST_NAME = ?, LAST_NAME= ?, ADDRESS = ?, CITY= ?, STATE= ?, ZIPCODE= ?, EMAIL= ?, PHONE_NUM= ?, PASSWORD = SHA1(?) WHERE EMAIL= ?;";
+					updateQuery += "UPDATE CARS SET CAR_MODEL= ?, COLOR=?, YEAR =? WHERE ROW_ID= ?;";
+					}
 					var inserts = [msg.FIRSTNAME,msg.LASTNAME,msg.ADDRESS,msg.CITY, msg.STATE,msg.ZIPCODE,msg.EMAIL, msg.PHONENUMBER,msg.PASSWORD,msg.OLDEMAIL,msg.CARMODEL, msg.CARCOLOR,msg.CARYEAR,results[0].CAR_ID];
-					getUser = mysql.formatSQLStatment(getUser,inserts);
+					updateQuery = mysql.formatSQLStatment(updateQuery,inserts);
 					console.log("Query is:" + getUser);
 					//Updating driver information
 					mysql.fetchData(function(err, results) {
@@ -288,7 +293,7 @@ exports.updateDriver = function(msg, callback) {
 							res.code = "200";
 							sendResponse(res);
 						}
-					}, getUser);
+					}, updateQuery);
 
 				}
 			}
@@ -342,6 +347,7 @@ exports.aboutDriver = function(msg, callback) {
 								console.log("User Found And Verfied "
 										+ JSON.stringify(user[0]));
 								res = user[0];
+								console.log("The year for the car is: "+user[0].YEAR);
 								res.code = "200";
 								console.log("WE GOT THE USER: "
 										+ JSON.stringify(res.FIRST_NAME));
@@ -371,6 +377,52 @@ exports.aboutDriver = function(msg, callback) {
 	}
 };
 
+exports.getDriverVideoLink = function(msg, callback) {
+	try {
+		var res = {};
+/*		var verifyDriverQuery = "select * from DRIVER, CARS where EMAIL = '"
+			+ msg.EMAIL + "' AND DRIVER.CAR_ID = CARS.ROW_ID";*/
+		var verifyDriverQuery = "select VIDEO_URL from DRIVER where EMAIL = ?";
+		var inserts = [msg.EMAIL];
+		verifyDriverQuery = mysql.formatSQLStatment(verifyDriverQuery,inserts);
+		mysql.fetchData(
+				function(err, user) {
+					if (!err) {
+						if (user[0] != null) {
+							if(user[0].VERIFIED == 1){
+								console.log("User Found And Verfied "
+										+ JSON.stringify(user[0]));
+								res = user[0];
+								console.log("The year for the car is: "+user[0].YEAR);
+								res.code = "200";
+								console.log("WE GOT THE USER: "
+										+ JSON.stringify(res.FIRST_NAME));
+								callback(null, res);
+							}else{
+								//User Not Found
+								res.code = "401";
+								res.err = "User not found in the system or was not verfied by Admin. Please register before trying to Login to the application or wait until the admin approves you";
+								callback(null, res);
+							}
+
+						} else {
+							//User Not Found
+							res.code = "401";
+							res.err = "User not found in the system or was not verfied by Admin. Please register before trying to Login to the application or wait until the admin approves you";
+							callback(null, res);
+						}
+					} else {
+						//Unknown Error
+						res.code = "401";
+						res.err = err;
+						callback(err, res);
+					}
+				}, verifyDriverQuery);
+	} catch (e) {
+		console.log("getDriverVideoLink : Error : " + e);
+	}
+};
+
 exports.uploadProfilePicDriver = function(msg, callback){
 	try{
 		var res = {};
@@ -391,6 +443,31 @@ exports.uploadProfilePicDriver = function(msg, callback){
 				callback(err, res);
 			}
 		},verifyCustomerQuery);
+	}catch(e){
+		console.log("uploadProfilePic : Error : " + e);
+	}
+};
+
+exports.uploadDriverVideo = function(msg, callback){
+	try{
+		var res = {};
+		var uploadDriverVideoQuery = "UPDATE DRIVER SET VIDEO_URL = ? WHERE ROW_ID = ?";
+		var res = {};
+		var inserts = [msg.VIDEO,msg.ROW_ID];
+		uploadDriverVideoQuery = mysql.formatSQLStatment(uploadDriverVideoQuery,inserts)
+		mysql.fetchData(function(err,user){
+			if(!err){
+				console.log("Video updated  " + JSON.stringify(user));
+				res = user;
+				res.code = "200";
+				callback(null, res);
+			}else{
+				//Unknown Error
+				res.code = "401";
+				res.err  = err;
+				callback(err, res);
+			}
+		},uploadDriverVideoQuery);
 	}catch(e){
 		console.log("uploadProfilePic : Error : " + e);
 	}
@@ -420,7 +497,7 @@ exports.CreateDrivers = function(msg, callback) {
 												console.log("Credit Card ID: " + user[0].ROW_ID);
 												carID = user[0].ROW_ID;
 												console	.log("checking to see if credit is the same: "+ carID);
-												var insertCarQuery = "INSERT INTO DRIVER (CAR_ID,FIRST_NAME,LAST_NAME,ADDRESS,CITY,STATE,ZIPCODE,EMAIL,PASSWORD,PHONE_NUM,IMAGE_URL,VIDEO_URL,SSN_ID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);"
+												var insertCarQuery = "INSERT INTO DRIVER (CAR_ID,FIRST_NAME,LAST_NAME,ADDRESS,CITY,STATE,ZIPCODE,EMAIL,PASSWORD,PHONE_NUM,IMAGE_URL,VIDEO_URL,SSN_ID) VALUES (?,?,?,?,?,?,?,?,SHA1(?),?,?,?,?);"
 												var inserts = [carID,msg.FIRSTNAME,msg.LASTNAME,msg.ADDRESS,msg.CITY,msg.STATE,msg.ZIPCODE,msg.EMAIL,msg.PASSWORD,msg.MOBILENUMBER,msg.IMAGE_URL,msg.VIDEO_URL,msg.SSN_ID];
 												insertCarQuery = mysql.formatSQLStatment(insertCarQuery,inserts);
 													mysql.fetchData(

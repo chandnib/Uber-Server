@@ -1,10 +1,10 @@
 var ejs= require('ejs');
 var mysql = require('mysql');
 
-var redis = require('redis');
-var client = redis.createClient('6379','127.0.0.1');
-if (typeof process.env.REDIS_PASSWORD)
-	client.auth('');
+//var redis = require('redis');
+//var client = redis.createClient('6379','127.0.0.1');
+//if (typeof process.env.REDIS_PASSWORD)
+	//client.auth('');
 
 
 
@@ -19,7 +19,7 @@ function getConnection(){
 		user     : 'root',
 		password : 'root',
 		database : 'uberdb'//,
-			//  port	 : 8889
+	    //port	 : 8889
 	});
 	return connection;
 }
@@ -28,13 +28,15 @@ function getConnection(){
 var pool  = mysql.createPool({
 	queueLimit:500,
 	waitForConnections: true,
+	multipleStatements: true,
 	  connectionLimit : 100,
 	  connectTimeout: 6000,
 		pool: false,
 		host     : 'localhost',
 		user     : 'root',
 		password : 'root',
-		database : 'uberdb'
+		database : 'uberdb'//,
+		//port	 : 8889
 	});
 
 /*

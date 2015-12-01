@@ -39,7 +39,9 @@ exports.verifyUser = function(msg, callback){
 //changes
 exports.loadUnverifiedCustomers = function(msg, callback){
 	try{
-		var verifyUserQuery = "SELECT `ROW_ID`,IMAGE_URL, `FIRST_NAME`, `LAST_NAME`, `ADDRESS`, `CITY`, `STATE`, `ZIPCODE`, `EMAIL`, `PHONE_NUM`, `CREDIT_CARD_ID`, `VERIFIED` FROM `CUSTOMER` where VERIFIED = 0 LIMIT 100;";
+		var verifyUserQuery = "SELECT `ROW_ID`,IMAGE_URL, `FIRST_NAME`, `LAST_NAME`, `ADDRESS`, "
+			+"`CITY`, `STATE`, `ZIPCODE`, `EMAIL`, `PHONE_NUM`," 
+		+" `CREDIT_CARD_ID`, `VERIFIED` FROM `CUSTOMER` LIMIT "+ msg.currentRow	+",100;";
 		var res = {};
 		mysql.fetchData(function(err,user){
 			if(!err){
@@ -407,3 +409,57 @@ exports.loadDriverDetail = function(msg, callback){
 	}
 };
 
+// searchBill Method for searching Bills by Parteek
+exports.searchBill = function(msg, callback) {
+	var res ={};
+	var toDate, fromDate, custEmailId, driverEmailId;
+	var scene = 0;
+	toDate = msg.toDate.split("T")[0];
+	fromDate = msg.fromdate.split("T")[0];
+	custEmailId = msg.custEmailId;
+	driverEmailId = msg.driverEmailId
+	console.log("msg" + JSON.stringify(msg));
+	console.log("toDate" + toDate + ":" + "fromDate" + fromDate + ":"
+			+ "custEmailId" + custEmailId + ":" + "driverEmailId"
+			+ driverEmailId);
+	var SearchBillQuery;
+	var inserts = [];
+
+	SearchBillQuery = "SELECT B.*,D.FIRST_NAME AS DFIRSTNAME,D.LAST_NAME AS DLASTNAME,C.FIRST_NAME AS CFIRSTNAME,C.LAST_NAME AS CLASTNAME FROM DRIVER AS D, CUSTOMER AS C, BILLING AS B WHERE B.DRIVER_ID = D.ROW_ID AND B.CUSTOMER_ID = C.ROW_ID AND BILL_DATE < ? and BILL_DATE > ?";
+	inserts.push(toDate);
+	inserts.push(fromDate);
+	if (undefined != custEmailId) {
+		SearchBillQuery += "AND C.EMAIL = ?"
+		inserts.push(custEmailId);
+	}
+	if (undefined != driverEmailId) {
+		SearchBillQuery += "AND D.EMAIL = ?"
+		inserts.push(driverEmailId);
+	}
+	SearchBillQuery = mysql.formatSQLStatment(SearchBillQuery, inserts)
+		console.log("SearchBillQuery : " + SearchBillQuery);
+	mysql
+			.fetchData(
+					function(err, user) {
+						if (!err) {
+							if (user.length>0) {
+								console
+										.log("Search bill Found !! "
+												+ JSON.stringify(user));
+								res.data = user;
+								res.code = "200";
+								callback(null, res);
+							} else {
+								// User Not Found
+								res.code = "401";
+								res.err = "No bill found in the system, Please change the search criteria ..";
+								callback(null, res);
+							}
+						} else {
+							// Unknown Error
+							res.code = "401";
+							res.err = err;
+							callback(err, res);
+						}
+					}, SearchBillQuery);
+};

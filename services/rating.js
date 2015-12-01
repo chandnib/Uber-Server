@@ -28,6 +28,7 @@ exports.saveCustomerRating = function(msg, callback) {
 				console.log(result);
 				res.code = "401";
 				res.value = 'Unable to insert rating for the Customer';
+				console.log("err" + err);
 				callback(null, res);
 			} else {
 				console.log(result);
@@ -48,6 +49,7 @@ exports.saveDriverRating = function(msg, callback) {
 	var rideId = msg.rideId;
 	var driverId = msg.driverId;
 	var rating = msg.rating;
+	var review = msg.review;
 	var json_responses;
 
 	mongo.connect(mongoURL, function() {
@@ -80,65 +82,76 @@ exports.saveDriverRating = function(msg, callback) {
 
 exports.getDriverRating = function(msg, callback) {
 	var res = {};
-	var driverIds = msg.driverId;
+	res.driverReviews = [];
+	var driverId = parseInt(msg.driverId);
 	var json_responses;
+
 	mongo.connect(mongoURL, function() {
 		console.log('Connected to mongo at: ' + mongoURL);
-		var coll = mongo.collection('DriverRating');
-		for (i = 0; i <= driverIds.length - 1; i++) {
-			coll.aggregate([ {
-				$match : {
-					driverId : driverIds[i]
+		var coll = mongo.collection('CustomerRating');
+		coll.aggregate([ {
+			$match : {
+				driverId : driverId
+			}
+		}, {
+			$group : {
+				_id : "",
+				avgRating : {
+					$avg : "$rating"
 				}
-			}, {
-				$group : {
-					_id : "",
-					avgRating : {
-						$avg : "$rating"
-					}
-				}
-			} ]).toArray(function(err, result) {
-				if (err) {
-					console.log(result);
-					res.code = "401";
-					res.value = 'Unable to get rating for the Driver';
-				} else {
-					console.log(result);
-					res.code = "200";
-					res.value.driverRating.push({
-						"driverId" : driverIds[i],
-						"rating" : result.avgRating
-					});
-
-				}
-			});
-		coll.find({driverId:driverIds[i]}).toArray(function(err, result) {
+			}
+		} ]).toArray(function(err, result) {
 			if (err) {
 				console.log(result);
 				res.code = "401";
-				res.value = 'Unable to get reviews for the Driver';
+				res.value = 'Unable to get rating for the Driver';
+				callback(null, res);
 			} else {
-				console.log(result);
-				res.code = "200";
-				res.value.driverReviews.push({
-					"driverId" : driverIds[i],
-					"review" : result.review
+				console.log("console.log(result);" + JSON.stringify(result));
+				if (result.length != 0)
+					res.rating = result[0].avgRating;
+				res.driverId = driverId;
+				coll.find({
+					driverId : driverId
+				}).toArray(function(err, result) {
+					if (err) {
+						console.log("result is" + result[0]);
+						res.code = "401";
+						res.value = 'Unable to get reviews for the Driver';
+					} else {
+						console.log("result is" + JSON.stringify(result));
+						res.code = "200";
+						if (result.length === 1) {
+							res.driverReviews.push(result[0].review);
+							res.rating = result[0].rating;
+						} else if (result.length > 1) {
+							for (var i = 0; i < result.length; i++) {
+								res.driverReviews.push(result[0].review);
+							}
+						} else if (result.length === 0) {
+							res.code = "402";
+							res.value = 'No Reviews and Rating Available';
+							callback(null, res);
+						}
+						console.log(res + "res");
+						callback(null, res);
+
+					}
 				});
 
 			}
-		});
-		}
-	});
 
-	console.log("response is" + JSON.stringify(res));
-	callback(null, res);
+		});
+
+	});
 };
 
 /* Method for Getting Driver Rating by Parteek */
 
 exports.getCustomerRating = function(msg, callback) {
 	var res = {};
-	var customerId = msg.customerId;
+	res.customerReviews = [];
+	var customerId = parseInt(msg.customerId);
 	var json_responses;
 
 	mongo.connect(mongoURL, function() {
@@ -162,25 +175,40 @@ exports.getCustomerRating = function(msg, callback) {
 				res.value = 'Unable to get rating for the Driver';
 				callback(null, res);
 			} else {
-				coll.find({customerId:customerId}).toArray(function(err, result) {
+				console.log("console.log(result);" + JSON.stringify(result));
+				if (result.length != 0)
+					res.rating = result[0].avgRating;
+				res.customerId = customerId;
+				coll.find({
+					customerId : customerId
+				}).toArray(function(err, result) {
 					if (err) {
-						console.log(result);
+						console.log("result is" + result[0]);
 						res.code = "401";
 						res.value = 'Unable to get reviews for the Driver';
 					} else {
-						console.log(result);
+						console.log("result is" + JSON.stringify(result));
 						res.code = "200";
-						res.value.rating = result.avgRating;
-						res.value.driverReviews.push({
-							"customerId" : customerId,
-							"review" : result.review
-						});
+						if (result.length === 1) {
+							res.customerReviews.push(result[0].review);
+							res.rating = result[0].rating;
+						} else if (result.length > 1) {
+							for (var i = 0; i < result.length; i++) {
+								res.customerReviews.push(result[0].review);
+							}
+						} else if (result.length === 0) {
+							res.code = "402";
+							res.value = 'No Reviews and Rating Available';
+							callback(null, res);
+						}
+						console.log(res + "res");
 						callback(null, res);
 
 					}
 				});
-				
+
 			}
+
 		});
 
 	});

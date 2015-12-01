@@ -245,7 +245,27 @@ connection.on('ready', function() {
 		});
 		console.log("loadDriverDetail Queue Created!!! and listening to the Queue!");
 	});
+	
+	// Search Bill for Admin
+	connection.queue('searchBill', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("searchBill => Message: "+JSON.stringify(message));
+			util.log("searchBill => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.searchBill(message, function(err,res){
+				console.log("searchBill Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("searchBill Queue Created!!! and listening to the Queue!");
+	});
 });
+
+
 
 connection1.on('ready', function() {
 	connection1.queue('updateCustomer', function(q){
@@ -736,7 +756,7 @@ connection5.on('ready', function() {
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
-			billing.getCustomerRating(message, function(err,res){
+			rating.getCustomerRating(message, function(err,res){
 				console.log("getCustomerRating Response : " + JSON.stringify(res));
 				connection5.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
@@ -753,7 +773,7 @@ connection5.on('ready', function() {
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
-			billing.getDriverRating(message, function(err,res){
+			rating.getDriverRating(message, function(err,res){
 				console.log("getDriverRating Response : " + JSON.stringify(res));
 				connection5.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
@@ -770,7 +790,7 @@ connection5.on('ready', function() {
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
-			billing.saveCustomerRating(message, function(err,res){
+			rating.saveCustomerRating(message, function(err,res){
 				console.log("saveCustomerRating Response : " + JSON.stringify(res));
 				connection5.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
@@ -782,12 +802,12 @@ connection5.on('ready', function() {
 		console.log("uber_saveCustomerRating_queue  Created!!! and listening to the Queue!");
 	});
 	
-	connection5.queue('uber_saveCustomerRating_queue', function(q){
+	connection5.queue('uber_saveDriverRating_queue', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
 			util.log("Message: "+JSON.stringify(message));
 			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
-			billing.saveDriverRating(message, function(err,res){
+			rating.saveDriverRating(message, function(err,res){
 				console.log("saveDriverRating Response : " + JSON.stringify(res));
 				connection5.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',

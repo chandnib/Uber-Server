@@ -52,6 +52,7 @@ exports.handle_request_createRide = function(msg, callback) {
 	var dropoff_longitude = msg.dropoff_longitude;
 	var distance_covered = msg.distance_covered;
 	var total_time = msg.total_time;
+	var driver_status = msg.driver_status;
 
 	var insertRide = "INSERT INTO RIDES(`PICKUP_LOCATION`,`DROPOFF_LOCATION`,`CUSTOMER_ID`,`DRIVER_ID`,`RIDE_EVENT_ID`,`STATUS`,`PICKUP_LATITUDE`,`PICKUP_LONGITUDE`,`DROPOFF_LATITUDE`,`DROPOFF_LONGITUDE`,`DISTANCE_COVERED`,`TOTAL_TIME`)VALUES("
 			+ "?,?,?,?,?,?,?,?,?,?,?,?);";
@@ -72,19 +73,37 @@ exports.handle_request_createRide = function(msg, callback) {
 			res.code = 200;
 			res.status = 'CR';
 			res.value = results.insertId;
+			var setDriverStatus = "UPDATE DRIVER_LOCATION SET ?? = ? where ?? = ?;";
+			inserts = ["STATUS",driver_status,"driver_id",driver_id];
+			setDriverStatus = mysql.formatSQLStatment(setDriverStatus,inserts);
+			
+			
+			console.log("query is:" + setDriverStatus);
+			
+			mysql.fetchData(function(err, results_driver_status) {
+				if (err) {
+					res.code = 401;
+					res.err  = err;
+					callback(err, res);
+				} else {
+					console.log("RESULTS" + JSON.stringify(results_driver_status));
+					if(results_driver_status.affectedRows >0){
+//						res.code = 200;
+						res.driver_status = 'U';
+					}
+					console.log("response is :" + res);
+					callback(null, res);
 				}
-			else
-				{
-				res.code = 401;
-				res.err = "Unable to create Ride";
-				}
-			console.log("response object : " + res);
-				}
-			callback(null, res);
+			}, setDriverStatus);
+			}
+			
+			}
+		
 		}, insertRide);
 	}catch(e){
 		console.log("createRide : Error : " + e);
 	}
+
 
 
 };
@@ -172,7 +191,7 @@ exports.handle_request_startRide = function(msg,callback)
 	var res= {};
 	console.log("inside start ride" + msg.customer_id);
 	var ride_id = msg.ride_id;
-	
+		
 	var startRide = "UPDATE ?? SET ?? = ? , ?? = NOW() WHERE ?? = ? AND ?? = ?";
 	var inserts = ["RIDES","STATUS",'S',"RIDE_START_TIME","ROW_ID",ride_id,"RIDE_END_TIME",'0000-00-00 00:00:00'];
 	startRide = mysql.formatSQLStatment(startRide,inserts);
@@ -211,7 +230,9 @@ exports.handle_request_cancelRide = function(msg,callback)
 	var res= {};
 	console.log("inside cancel ride" + msg.ride_id);
 	var ride_id = msg.ride_id;
-	
+	var driver_status = msg.driver_status;
+	var driver_id = msg.driver_id;
+		
 	var cancelRide = "UPDATE ?? SET ?? = ? , ?? = NOW() WHERE ?? = ? AND ?? = ?;";
 	var inserts = ["RIDES","STATUS",'CA',"RIDE_END_TIME","ROW_ID",ride_id,"RIDE_END_TIME",'0000-00-00 00:00:00'];
 	cancelRide = mysql.formatSQLStatment(cancelRide,inserts);
@@ -229,15 +250,28 @@ exports.handle_request_cancelRide = function(msg,callback)
 			if(results.affectedRows > 0){
 				res.code = 200;
 				res.status = 'CA';
-				res.value = results;
+				
+				var setDriverStatus = "UPDATE DRIVER_LOCATION SET ?? = ? where ?? = ?;";
+				inserts = ["STATUS",driver_status,"driver_id",driver_id];
+				setDriverStatus = mysql.formatSQLStatment(setDriverStatus,inserts);	
+				console.log("query is:" + setDriverStatus);
+				
+				mysql.fetchData(function(err, results_driver_status) {
+					if (err) {
+						res.code = 401;
+						res.err  = err;
+						callback(err, res);
+					} else {
+						console.log("RESULTS" + JSON.stringify(results_driver_status));
+						if(results_driver_status.affectedRows >0){
+//							res.code = 200;
+							res.driver_status = 'A';
+						}
+						console.log("response is :" + JSON.stringify(res));
+						callback(null, res);
+					}
+				}, setDriverStatus);
 			}
-			else
-				{
-				res.code = 401;
-				res.err = "Unable to cancel Ride";
-				}
-			console.log("response object : " + JSON.stringify(res));
-			callback(null, res);
 		}
 	}, cancelRide);
 	
@@ -252,6 +286,8 @@ exports.handle_request_endRide = function(msg,callback)
 	var res= {};
 	console.log("inside end ride" + msg.ride_id);
 	var ride_id = msg.ride_id;
+	var driver_status = msg.driver_status;
+	var driver_id = msg.driver_id;
 	
 	var endRide = "UPDATE ?? SET ?? = ? , ?? = NOW() WHERE ?? = ? AND ?? = ?;";
 	var inserts = ["RIDES","STATUS",'E',"RIDE_END_TIME","ROW_ID",ride_id,"RIDE_END_TIME",'0000-00-00 00:00:00'];
@@ -271,20 +307,32 @@ exports.handle_request_endRide = function(msg,callback)
 			if(results.affectedRows > 0){
 				res.code = 200;
 				res.status = 'E';
-				res.value = results;
+				var setDriverStatus = "UPDATE DRIVER_LOCATION SET ?? = ? where ?? = ?;";
+				inserts = ["STATUS",driver_status,"driver_id",driver_id];
+				setDriverStatus = mysql.formatSQLStatment(setDriverStatus,inserts);		
+				console.log("query is:" + setDriverStatus);
+				mysql.fetchData(function(err, results_driver_status) {
+					if (err) {
+						res.code = 401;
+						res.err  = err;
+						callback(err, res);
+					} else {
+						console.log("RESULTS" + JSON.stringify(results_driver_status));
+						if(results_driver_status.affectedRows >0){
+//							res.code = 200;
+							res.driver_status = 'A';
+						}
+						console.log("response is :" + JSON.stringify(res));
+						callback(null, res);
+					}
+				}, setDriverStatus);
 			}
-			else
-				{
-				res.code = 401;
-				res.err = "Unable to end ride";
-				}
-			console.log("response object : " + JSON.stringify(res));
-			callback(null, res);
 		}
 	}, endRide);
 	}catch(e){
 		console.log("endRide : Error : " + e);
 	}
+
 };
 
 exports.handle_request_fetchRideStatus = function(msg,callback)

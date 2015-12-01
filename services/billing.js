@@ -67,7 +67,7 @@ exports.generateBill = function(msg, callback) {
 	var res = {};
 	console.log("inside generate bill");
 	var rideID = msg.rideId;
-	var checkBill = "select * from billing where ride_id=" + rideID + ";";
+	var checkBill = "select * from BILLING where ride_id=" + rideID + ";";
 	mysql
 			.fetchData(
 					function(err, results) {
@@ -81,7 +81,7 @@ exports.generateBill = function(msg, callback) {
 							callback(null, res);
 						} else if (results.length === 0) {
 
-							var getRide = "select * from rides where ROW_ID="
+							var getRide = "select * from RIDES where ROW_ID="
 									+ rideID;
 							mysql
 									.fetchData(
@@ -151,7 +151,7 @@ exports.generateBill = function(msg, callback) {
 
 																		} else {
 																			if (results) {
-																				var getBill = "select * from billing where ride_id="
+																				var getBill = "select * from BILLING where ride_id="
 																						+ rideID
 																						+ ";";
 																				console

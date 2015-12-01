@@ -1,23 +1,14 @@
 var ejs= require('ejs');
 var mysql = require('mysql');
 
-<<<<<<< Upstream, based on origin/master
 //redis 
-var redis = require('redis');
-=======
 /*var redis = require('redis');
->>>>>>> 6bf0e51 Rekha - Latest chnges with admin modules
 var client = redis.createClient('6379','127.0.0.1');
 if (typeof process.env.REDIS_PASSWORD)
-<<<<<<< Upstream, based on origin/master
-	client.auth('');
-	
-=======
 	client.auth('');*/
 
 
 
->>>>>>> 6bf0e51 Rekha - Latest chnges with admin modules
 //Changes
 function getConnection(){
 	var connection = mysql.createConnection({

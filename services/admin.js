@@ -41,7 +41,9 @@ exports.verifyUser = function(msg, callback){
 //changes
 exports.loadUnverifiedCustomers = function(msg, callback){
 	try{
-		var verifyUserQuery = "SELECT `ROW_ID`,IMAGE_URL, `FIRST_NAME`, `LAST_NAME`, `ADDRESS`, `CITY`, `STATE`, `ZIPCODE`, `EMAIL`, `PHONE_NUM`, `CREDIT_CARD_ID`, `VERIFIED` FROM `CUSTOMER` where VERIFIED = 0 LIMIT 100;";
+		var verifyUserQuery = "SELECT `ROW_ID`,IMAGE_URL, `FIRST_NAME`, `LAST_NAME`, `ADDRESS`, "
+			+"`CITY`, `STATE`, `ZIPCODE`, `EMAIL`, `PHONE_NUM`," 
+		+" `CREDIT_CARD_ID`, `VERIFIED` FROM `CUSTOMER` LIMIT "+ msg.currentRow	+",100;";
 		var res = {};
 		mysql.fetchData(function(err,user){
 			if(!err){
@@ -409,3 +411,174 @@ exports.loadDriverDetail = function(msg, callback){
 	}
 };
 
+exports.revenueStats = function(msg, callback){
+	try{
+		var revenueStatsQuery = "SELECT SUM(B.BILL_AMOUNT) AS BILL,COUNT(R.ROW_ID) AS RIDE,DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS RDATE FROM BILLING AS B, RIDES R WHERE B.RIDE_ID = R.ROW_ID AND B.RIDE_ID IN (SELECT ROW_ID FROM RIDES WHERE ACOS( SIN( RADIANS( PICKUP_LATITUDE ) ) * SIN( RADIANS( " + msg.lat + " ) ) + COS( RADIANS( PICKUP_LATITUDE ) ) * COS( RADIANS( " + msg.lat + " )) * COS( RADIANS( PICKUP_LONGITUDE ) - RADIANS( " + msg.long + " )) ) * 6380 < 4.828 AND STATUS = 'E' AND DATE(RIDE_START_TIME) BETWEEN '" + msg.startdate + "' AND '" + msg.enddate + "' AND STATUS = 'E' ) GROUP BY RIDE_START_TIME";
+		console.log("query: "+revenueStatsQuery);
+		var res = {};
+		mysql.fetchData(function(err,user){
+			if(!err){
+				if(user != null){
+					console.log("Stats Found !! " + JSON.stringify(user));
+					res.code = 200;
+					res.data = user;
+					callback(null, res);
+				}else{
+					//User Not Found
+					res.code = 401;
+					res.err  = "Stats unavailable to the application..";
+					callback(null, res);
+				}
+			}else{
+				//Unknown Error
+				res.code = 401;
+				res.err  = err;
+				callback(err, res);
+			}
+		},revenueStatsQuery);
+	}catch(e){
+		console.log("revenueStats : Error : " + e);
+	}
+};
+
+exports.totalrideStats = function(msg, callback){
+	try{
+		var totalrideStatsQuery = "SELECT COUNT(ROW_ID) AS AREACOUNT FROM RIDES WHERE ACOS( SIN( RADIANS( PICKUP_LATITUDE ) ) * SIN( RADIANS( " + msg.lat + ") ) + COS( RADIANS( PICKUP_LATITUDE ) ) * COS( RADIANS( " + msg.lat + " )) * COS( RADIANS( PICKUP_LONGITUDE ) - RADIANS( " + msg.long + " )) ) * 6380 < 4.828 AND STATUS = 'E' AND DATE(RIDE_START_TIME) = '" + msg.startdate + "'";
+		var res = {};
+		mysql.fetchData(function(err,user){
+			if(!err){
+				if(user != null){
+					console.log("totalrideStatsQuery Stats Found !! " + JSON.stringify(user[0]));
+					res.code = 200;
+					res.data = user;
+					callback(null, res);
+				}else{
+					//User Not Found
+					res.code = 401;
+					res.err  = "Stats unavailable to the application..";
+					callback(null, res);
+				}
+			}else{
+				//Unknown Error
+				res.code = 401;
+				res.err  = err;
+				callback(err, res);
+			}
+		},totalrideStatsQuery);
+	}catch(e){
+		console.log("totalrideStats : Error : " + e);
+	}
+};
+
+exports.cutomerrideStats = function(msg, callback){
+	try{
+		var cutomerrideStatsQuery = "SELECT COUNT(ROW_ID) AS CUSTOMERCOUNT FROM RIDES WHERE ACOS( SIN( RADIANS( PICKUP_LATITUDE ) ) * SIN( RADIANS( " + msg.lat + ") ) + COS( RADIANS( PICKUP_LATITUDE ) ) * COS( RADIANS( " + msg.lat + " )) * COS( RADIANS( PICKUP_LONGITUDE ) - RADIANS( " + msg.long + " )) ) * 6380 < 4.828 AND STATUS = 'E' AND DATE(RIDE_START_TIME) = '" + msg.startdate + "' AND CUSTOMER_ID = "+ msg.Customerid;
+		var res = {};
+		mysql.fetchData(function(err,user){
+			if(!err){
+				if(user != null){
+					console.log("Stats Found !! " + JSON.stringify(user[0]));
+					res.code = 200;
+					res.data = user;
+					callback(null, res);
+				}else{
+					//User Not Found
+					res.code = 401;
+					res.err  = "Stats unavailable to the application..";
+					callback(null, res);
+				}
+			}else{
+				//Unknown Error
+				res.code = 401;
+				res.err  = err;
+				callback(err, res);
+			}
+		},cutomerrideStatsQuery);
+	}catch(e){
+		console.log("cutomerrideStats : Error : " + e);
+	}
+};
+
+exports.driverrideStats = function(msg, callback){
+	try{
+		var driverrideStatsQuery = "SELECT COUNT(ROW_ID) AS DRIVERCOUNT FROM RIDES WHERE ACOS( SIN( RADIANS( PICKUP_LATITUDE ) ) * SIN( RADIANS( " + msg.lat + ") ) + COS( RADIANS( PICKUP_LATITUDE ) ) * COS( RADIANS( " + msg.lat + " )) * COS( RADIANS( PICKUP_LONGITUDE ) - RADIANS( " + msg.long + " )) ) * 6380 < 4.828 AND STATUS = 'E' AND DATE(RIDE_START_TIME) = '" + msg.startdate + "' AND DRIVER_ID = "+ msg.Driverid;
+		var res = {};
+		mysql.fetchData(function(err,user){
+			if(!err){
+				if(user != null){
+					console.log("Stats Found !! " + JSON.stringify(user[0]));
+					res.code = 200;
+					res.data = user;
+					callback(null, res);
+				}else{
+					//User Not Found
+					res.code = 401;
+					res.err  = "Stats unavailable to the application..";
+					callback(null, res);
+				}
+			}else{
+				//Unknown Error
+				res.code = 401;
+				res.err  = err;
+				callback(err, res);
+			}
+		},driverrideStatsQuery);
+	}catch(e){
+		console.log("driverrideStats : Error : " + e);
+	}
+};
+
+// searchBill Method for searching Bills by Parteek
+exports.searchBill = function(msg, callback) {
+	var res ={};
+	var toDate, fromDate, custEmailId, driverEmailId;
+	var scene = 0;
+	toDate = msg.toDate.split("T")[0];
+	fromDate = msg.fromdate.split("T")[0];
+	custEmailId = msg.custEmailId;
+	driverEmailId = msg.driverEmailId
+	console.log("msg" + JSON.stringify(msg));
+	console.log("toDate" + toDate + ":" + "fromDate" + fromDate + ":"
+			+ "custEmailId" + custEmailId + ":" + "driverEmailId"
+			+ driverEmailId);
+	var SearchBillQuery;
+	var inserts = [];
+
+	SearchBillQuery = "SELECT B.*,D.FIRST_NAME AS DFIRSTNAME,D.LAST_NAME AS DLASTNAME,C.FIRST_NAME AS CFIRSTNAME,C.LAST_NAME AS CLASTNAME FROM DRIVER AS D, CUSTOMER AS C, BILLING AS B WHERE B.DRIVER_ID = D.ROW_ID AND B.CUSTOMER_ID = C.ROW_ID AND BILL_DATE < ? and BILL_DATE > ?";
+	inserts.push(toDate);
+	inserts.push(fromDate);
+	if (undefined != custEmailId) {
+		SearchBillQuery += "AND C.EMAIL = ?"
+		inserts.push(custEmailId);
+	}
+	if (undefined != driverEmailId) {
+		SearchBillQuery += "AND D.EMAIL = ?"
+		inserts.push(driverEmailId);
+	}
+	SearchBillQuery = mysql.formatSQLStatment(SearchBillQuery, inserts)
+		console.log("SearchBillQuery : " + SearchBillQuery);
+	mysql
+			.fetchData(
+					function(err, user) {
+						if (!err) {
+							if (user.length>0) {
+								console
+										.log("Search bill Found !! "
+												+ JSON.stringify(user));
+								res.data = user;
+								res.code = "200";
+								callback(null, res);
+							} else {
+								// User Not Found
+								res.code = "401";
+								res.err = "No bill found in the system, Please change the search criteria ..";
+								callback(null, res);
+							}
+						} else {
+							// Unknown Error
+							res.code = "401";
+							res.err = err;
+							callback(err, res);
+						}
+					}, SearchBillQuery);
+};

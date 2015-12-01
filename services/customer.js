@@ -290,6 +290,37 @@ exports.uploadProfilePic = function(msg, callback){
 	}
 };
 
+exports.uploadEventRidePic = function(msg, callback){
+	try{
+		var res = {};
+		
+		mongo.connect(mongoURL, function() {
+			console.log('Connected to mongo at: ' + mongoURL);
+			var coll = mongo.collection('RideEventImages');
+			coll.insert({
+				imageURL : msg.IMAGE_URL,
+				customer_id : msg.ROW_ID
+			}, function(err, result) {
+				if (err) {
+					console.log(result);
+					res.code = "401";
+					res.value = 'Unable to insert image URL for the Ride';
+					console.log("err"+err);
+					callback(null, res);
+				} else {
+					console.log(result);
+					res.code = "200";
+					res.value = result;
+					callback(null, res);
+				}
+			});
+
+		});
+	}catch(e){
+		console.log("uploadEventRidePic : Error : " + e);
+	}
+};
+
 exports.CreateCustomer = function(msg, callback){
 	try{
 		
@@ -333,7 +364,6 @@ exports.CreateCustomer = function(msg, callback){
 									}else{
 										//User Not Found so added to the system
 										res.code = "401";
-
 										callback(err, res);
 									}
 								}else{

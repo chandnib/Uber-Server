@@ -70,7 +70,7 @@ function fetchData(callback,sqlQuery){
 								client.flushall();
 								console.log("Crud Operation so flush all the DB Queries!!!")
 							}
-							client.setex(sqlQuery, 200, test);
+							client.setex(sqlQuery, 10, test);
 							callback(err, rows);
 						}
 					});

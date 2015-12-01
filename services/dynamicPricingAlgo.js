@@ -37,6 +37,7 @@ function dateCompare(time1,time2) {
 exports.getPricingSurcharge = function(latitude,longitude,callback){
 	//var latitude  = 37.340634;
 	//var longitude = -121.900036 ;
+	var surcharge = 0;
 	var latlongArr = [];
 	latlongArr.push(latitude);//(37.356281);
 	latlongArr.push(longitude);//(-121.892623);
@@ -46,11 +47,9 @@ exports.getPricingSurcharge = function(latitude,longitude,callback){
 		                         {slot:'early_morning',start:'05:00:00',end:'07:00:00',surcharge : 3},
 		                         {slot:'morning_peak', start:'07:01:00',end:'10:00:00',surcharge : 2},
 		                         {slot:'normal', start:'10:01:00',end:'16:00:00',surcharge : 1},
-		                         {slot:'evening_peak', start:'16:01:00',end:'21:00:00',surcharge : 2},
-		                         {slot:'late_night', start:'21:01:00',end:'04:59:00',surcharge : 3}
+		                         {slot:'evening_peak', start:'16:01:00',end:'23:59:00',surcharge : 2},
+		                         {slot:'late_night', start:'00:00:01',end:'04:59:00',surcharge : 3}
 		                         ];
-
-		var surcharge = 0;
 		
 		//Surcharge based on the "time_of_day" in the region
 		if(pricingConfig.time_of_day){
@@ -164,11 +163,12 @@ exports.getPricingSurcharge = function(latitude,longitude,callback){
 							coll.find({
 								"requestTime" : {"$gte":  new Date(currDateStr)}
 							}).toArray(function(err,users){
-								console.log("number of Requests ==> " + users.length);
-								no_of_request = users.length;
-								surcharge += Number(no_of_request/1000);
-								console.log("Current surcharge (After Number of Request !!) ==> " + Number(surcharge)); 
-							
+								if(users != null && users != undefined){
+									console.log("number of Requests ==> " + users.length);
+									no_of_request = users.length;
+									surcharge += Number(no_of_request/1000);
+									console.log("Current surcharge (After Number of Request !!) ==> " + Number(surcharge)); 	
+								}
 								if(pricingConfig.number_of_drivers){
 									try{
 										var DriverThresholdLimit = 5;
@@ -178,12 +178,16 @@ exports.getPricingSurcharge = function(latitude,longitude,callback){
 												longitude: longitude
 										};
 										driver.showDriverin10Mile(data, function(err, user) {
-											console.log("Driver in the Area : " + user.data.length);
 											if (err) {
 												console.log("There is an error: " + err);
 											} else {
-												if((user.length < DriverThresholdLimit)){
-													surcharge += Number(DriverSurcharge);
+												if(user != null && user != undefined){
+													if(user.data != null && user.data != undefined){
+														if((user.data.length < DriverThresholdLimit)){
+															console.log("Driver in the Area : " + user.data.length);
+															surcharge += Number(DriverSurcharge);
+														}
+													}
 												}
 											}
 										 callback(null,surcharge);
@@ -203,11 +207,15 @@ exports.getPricingSurcharge = function(latitude,longitude,callback){
 				
 			});
 		}
-		
 		console.log("Current surcharge (After current_weather) ==> " + Number(surcharge)); 
 
 	}catch(e){
 		console.log(e);
+		if(surcharge === 0)
+			surcharge = 1;
+		callback(e,surcharge)
 	}
+	
+	
 }
 

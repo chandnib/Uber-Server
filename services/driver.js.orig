@@ -272,9 +272,14 @@ exports.updateDriver = function(msg, callback) {
 					+ msg.CARYEAR + " WHERE CARS.ROW_ID= "
 					+ results[0].CAR_ID + ";";*/
 					
+<<<<<<< HEAD
 					updateQuery = "UPDATE DRIVER SET FIRST_NAME = ?, LAST_NAME= ?, ADDRESS = ?, CITY= ?, STATE= ?, ZIPCODE= ?, EMAIL= ?, PHONE_NUM= ?, PASSWORD = SHA1(?) WHERE EMAIL= ?;";
 					updateQuery += "UPDATE CARS SET CAR_MODEL= ?, COLOR=?, YEAR =? WHERE ROW_ID= ?;";
 					}
+=======
+					var getUser = "UPDATE DRIVER SET FIRST_NAME = ?, LAST_NAME= ?, ADDRESS = ?, CITY= ?, STATE= ?, ZIPCODE= ?, EMAIL= ?, PHONE_NUM= ?, PASSWORD = ? WHERE EMAIL= ?;";
+					getUser += "UPDATE `CARS` SET `CAR_MODEL` = ?, `COLOR`=?, `YEAR` =? WHERE `ROW_ID`= ?;";
+>>>>>>> bed305a2b99540c259611e96ec481d49436ebb8c
 					var inserts = [msg.FIRSTNAME,msg.LASTNAME,msg.ADDRESS,msg.CITY, msg.STATE,msg.ZIPCODE,msg.EMAIL, msg.PHONENUMBER,msg.PASSWORD,msg.OLDEMAIL,msg.CARMODEL, msg.CARCOLOR,msg.CARYEAR,results[0].CAR_ID];
 					updateQuery = mysql.formatSQLStatment(updateQuery,inserts);
 					console.log("Query is:" + getUser);
@@ -347,6 +352,7 @@ exports.aboutDriver = function(msg, callback) {
 								console.log("User Found And Verfied "
 										+ JSON.stringify(user[0]));
 								res = user[0];
+								console.log("The year for the car is: "+user[0].YEAR);
 								res.code = "200";
 								console.log("WE GOT THE USER: "
 										+ JSON.stringify(res.FIRST_NAME));

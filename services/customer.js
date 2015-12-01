@@ -3,18 +3,18 @@ var mongoURL = "mongodb://localhost:27017/UberPrototypeDB";
 var async = require('async');
 var ObjectId = require('mongodb').ObjectID;
 var mysql = require("../routes/mysql");
-
 var self=this;
 
 exports.verifyUser = function(msg, callback){
 	try{
 		var res = {};
-		var verifyCustomerQuery = "SELECT * FROM CUSTOMER WHERE EMAIL = ?";
-		var inserts = [msg.EMAIL];
+		var verifyCustomerQuery = "SELECT * FROM CUSTOMER WHERE EMAIL = ? AND PASSWORD = SHA1(?)";
+		var inserts = [msg.EMAIL, msg.PASSWORD];
 		verifyCustomerQuery = mysql.formatSQLStatment(verifyCustomerQuery,inserts);
 		mysql.fetchData(function(err,user){
 			if(!err){
 				if(user[0] != null){
+					console.log("User: "+user[0]);
 					if(user[0].VERIFIED == 1){
 						console.log("User Found And Verfied " + JSON.stringify(user[0]));
 						delete user[0].PASSWORD
@@ -76,7 +76,7 @@ exports.insertUser = function(msg, callback){
 							"VALUES ('"+msg.FIRSTNAME+"','"+msg.LASTNAME+"','"+msg.ADDRESS+"','"+msg.CITY+"', '"+msg.STATE+"', '"+msg.ZIPCODE+"', '"+msg.EMAIL+"', '"+msg.MOBILENUMBER+"', '"+creditCardId+"','"+msg.PASSWORD+"');"
 							*/
 							var insertCustQuery = "INSERT INTO CUSTOMER (FIRST_NAME,LAST_NAME,ADDRESS,CITY,STATE,ZIPCODE,EMAIL,PHONE_NUM,CREDIT_CARD_ID,PASSWORD) " +
-							"VALUES (?,?,?,?,?,?,?,?,?,?);"
+							"VALUES (?,?,?,?,?,?,?,?,?,SHA1(?));"
 							var inserts = [msg.FIRSTNAME,msg.LASTNAME,msg.ADDRESS,msg.CITY,msg.STATE,msg.ZIPCODE,msg.EMAIL,msg.MOBILENUMBER,creditCardId,msg.PASSWORD];
 							insertCustQuery = mysql.formatSQLStatment(insertCustQuery,inserts);
 							mysql.fetchData(function(err,user){
@@ -153,11 +153,12 @@ exports.deleteUser = function(msg, callback){
 exports.updateCustomer = function(msg,callback){
 	try{
 		/*var getUser="select * from CUSTOMER where EMAIL='"+msg.OLDEMAIL+"'";*/
-		var getUser = "select * from CUSTOMER where EMAIL=?";
+		var getUser = "select * FROM CUSTOMER where EMAIL=?";
 		var inserts = [msg.OLDEMAIL];
 		getUser = mysql.formatSQLStatment(getUser,inserts);
 		console.log("Query is:"+getUser);
 		console.log("msg: "+msg.FIRSTNAME)
+		var updateQuery = "";
 		mysql.fetchData(function(err,results){
 			if(err){
 				throw err;
@@ -192,9 +193,14 @@ exports.updateCustomer = function(msg,callback){
 					if(!msg.PASSWORD)
 					{
 						msg.PASSWORD = results[0].PASSWORD;
+						updateQuery = "UPDATE CUSTOMER SET FIRST_NAME = ?, LAST_NAME=?, CITY=?, ZIPCODE=?, EMAIL=?, PHONE_NUM=?, PASSWORD=? WHERE EMAIL=?;";
 					}
-					var getUser="UPDATE CUSTOMER SET FIRST_NAME ='"+msg.FIRSTNAME+"', LAST_NAME='" + msg.LASTNAME +"', CITY='"+msg.CITY+"', ZIPCODE='"+ msg.ZIPCODE +"', EMAIL='"+msg.EMAIL+"', PHONE_NUM='"+msg.PHONENUMBER+"', PASSWORD='"+msg.PASSWORD+"' WHERE EMAIL='"+msg.OLDEMAIL+ "';";
-					console.log("Query is:"+getUser);
+					else
+					updateQuery="UPDATE CUSTOMER SET FIRST_NAME = ?, LAST_NAME=?, CITY=?, ZIPCODE=?, EMAIL=?, PHONE_NUM=?, PASSWORD=SHA1(?) WHERE EMAIL=?;";
+					//var getUser="UPDATE CUSTOMER SET FIRST_NAME ='"+msg.FIRSTNAME+"', LAST_NAME='" + msg.LASTNAME +"', CITY='"+msg.CITY+"', ZIPCODE='"+ msg.ZIPCODE +"', EMAIL='"+msg.EMAIL+"', PHONE_NUM='"+msg.PHONENUMBER+"', PASSWORD='"+SHA1(msg.PASSWORD)+"' WHERE EMAIL='"+msg.OLDEMAIL+ "';";
+					var inserts = [msg.FIRSTNAME,msg.LASTNAME,msg.CITY,msg.ZIPCODE,msg.EMAIL,msg.PHONENUMBER,msg.PASSWORD,msg.OLDEMAIL];
+					updateQuery = mysql.formatSQLStatment(updateQuery,inserts);
+					console.log("Query is:"+updateQuery);
 
 					mysql.fetchData(function(err,results){
 						if(err){
@@ -206,7 +212,7 @@ exports.updateCustomer = function(msg,callback){
 							results.code = "200";
 							sendResponse(results);
 						}  
-					},getUser);
+					},updateQuery);
 				}
 			}
 		},getUser);
@@ -215,7 +221,7 @@ exports.updateCustomer = function(msg,callback){
 			callback(null, response);
 		}
 	}catch(e){
-		console.log("deleteUser : Error : " + e);
+		console.log("updateUser : Error : " + e);
 	}	
 };
 
@@ -347,7 +353,7 @@ exports.CreateCustomer = function(msg, callback){
 							"VALUES ('"+msg.FIRSTNAME+"','"+msg.LASTNAME+"','"+msg.ADDRESS+"','"+msg.CITY+"', '"+msg.STATE+"', '"+msg.ZIPCODE+"', '"+msg.EMAIL+"', '"+msg.MOBILENUMBER+"', '"+creditCardId+"','"+msg.PASSWORD+"');"
 							*/
 							var insertCustQuery = "INSERT INTO CUSTOMER (FIRST_NAME,LAST_NAME,ADDRESS,CITY,STATE,ZIPCODE,EMAIL,PHONE_NUM,CREDIT_CARD_ID,PASSWORD,IMAGE_URL,SSN_ID) " +
-							"VALUES (?,?,?,?,?,?,?,?,?,?,?,?);"
+							"VALUES (?,?,?,?,?,?,?,?,?,SHA1(?),?,?);"
 							var inserts = [msg.FIRSTNAME,msg.LASTNAME,msg.ADDRESS,msg.CITY,msg.STATE,msg.ZIPCODE,msg.EMAIL,msg.MOBILENUMBER,creditCardId,msg.PASSWORD,msg.IMAGE_URL,msg.SSN_ID];
 							insertCustQuery = mysql.formatSQLStatment(insertCustQuery,inserts);
 							mysql.fetchData(function(err,user){

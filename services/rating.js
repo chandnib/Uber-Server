@@ -7,10 +7,10 @@ var ObjectId = require('mongodb').ObjectID;
 
 exports.saveCustomerRating = function(msg, callback) {
 	var res = {};
-	var customerId = msg.customerId;
-	var rideId = msg.rideId;
-	var driverId = msg.driverId;
-	var rating = msg.rating;
+	var customerId = parseInt(msg.customerId);
+	var rideId = parseInt(msg.rideId);
+	var driverId = parseInt(msg.driverId);
+	var rating = Number(msg.rating);
 	var review = msg.review;
 	var json_responses;
 
@@ -45,10 +45,10 @@ exports.saveCustomerRating = function(msg, callback) {
 
 exports.saveDriverRating = function(msg, callback) {
 	var res = {};
-	var customerId = msg.customerId;
-	var rideId = msg.rideId;
-	var driverId = msg.driverId;
-	var rating = msg.rating;
+	var customerId = parseInt(msg.customerId);
+	var rideId = parseInt(msg.rideId);
+	var driverId = parseInt(msg.driverId);
+	var rating = Number(msg.rating);
 	var review = msg.review;
 	var json_responses;
 

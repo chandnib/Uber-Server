@@ -12,8 +12,8 @@ exports.getFareEstimate = function(msg, callback) {
 	console.log("inside Fare Estimate");
 
 	var distance = msg.distance;
-	var latitude = 37.241926;
-	var longitude = -121.84530799999999;
+	var latitude = latitude;
+	var longitude = longitude;
 	dynamicPriceAlgo.getPricingSurcharge(latitude,longitude,function(error,surcharge){
 		var time = msg.time;
 		var Basefare = 2.20;

@@ -2,10 +2,10 @@ var ejs= require('ejs');
 var mysql = require('mysql');
 
 //redis 
-/*var redis = require('redis');
+var redis = require('redis');
 var client = redis.createClient('6379','127.0.0.1');
 if (typeof process.env.REDIS_PASSWORD)
-	client.auth('');*/
+	client.auth('');
 
 
 
@@ -18,7 +18,7 @@ function getConnection(){
 		pool: false,
 		host     : 'localhost',
 		user     : 'root',
-		password : 'rootpwd1',
+		password : 'root',
 		database : 'uberdb'//,
 			//  port	 : 8889
 	});
@@ -34,21 +34,22 @@ var pool  = mysql.createPool({
 	  connectTimeout: 6000,
 		host     : 'localhost',
 		user     : 'root',
-		password : 'rootpwd1',
+		password : 'root',
 		database : 'uberdb'
 });
 
 var test = false;
+
 //fetchData with connection pooling and Redis Caching
 function fetchData(callback,sqlQuery){
 	try{
 	console.log("\nSQL Query::"+sqlQuery);
 	var UPCASESQL = sqlQuery.toUpperCase();
 	var CRUD = false;
-		if(UPCASESQL.indexOf('INSERT') !== -1 || UPCASESQL.indexOf('UPDATE') !== -1 || UPCASESQL.indexOf('DELETE') !== -1 || UPCASESQL.indexOf('DELETE') !== -1)
+		if(UPCASESQL.indexOf('INSERT') !== -1 || UPCASESQL.indexOf('UPDATE') !== -1 || UPCASESQL.indexOf('DELETE') !== -1)
 			CRUD = true;
 		client.get(sqlQuery, function (err, result) {
-			if (err || !result || test){
+			if (err || !result || test || CRUD){
 				console.log("No Cache Found So executing the SQL for getting data!!!");
 				 pool.getConnection(function(err, connection) {
 					 connection.query(sqlQuery, function(err, rows, fields) {

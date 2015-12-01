@@ -195,7 +195,7 @@ exports.rejectAllCustomer = function(msg, callback){
 //changes
 exports.loadUnverifiedDrivers = function(msg, callback){
 	try{
-		var verifyUserQuery = "SELECT `ROW_ID`,IMAGE_URL, `FIRST_NAME`, `LAST_NAME`, `ADDRESS`, `CITY`, `STATE`, `ZIPCODE`, `EMAIL`, `PHONE_NUM`, `VERIFIED` FROM `DRIVER` where VERIFIED = 0 LIMIT 100;";
+		var verifyUserQuery = "SELECT `ROW_ID`,IMAGE_URL, `FIRST_NAME`, `LAST_NAME`, `ADDRESS`, `CITY`, `STATE`, `ZIPCODE`, `EMAIL`, `PHONE_NUM`, `VERIFIED` FROM `DRIVER` LIMIT 100;";
 		var res = {};
 		mysql.fetchData(function(err,user){
 			if(!err){

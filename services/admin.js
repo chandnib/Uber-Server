@@ -555,7 +555,7 @@ exports.searchBill = function(msg, callback) {
 		SearchBillQuery += "AND D.EMAIL = ?"
 		inserts.push(driverEmailId);
 	}
-	SearchBillQuery="LIMIT "+ msg.currentRow	+",100;";
+	SearchBillQuery +=" LIMIT "+ msg.currentRow	+",100;";
 	SearchBillQuery = mysql.formatSQLStatment(SearchBillQuery, inserts)
 		console.log("SearchBillQuery : " + SearchBillQuery);
 	mysql

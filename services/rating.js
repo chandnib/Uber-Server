@@ -110,6 +110,8 @@ exports.getDriverRating = function(msg, callback) {
 				console.log("console.log(result);" + JSON.stringify(result));
 				if (result.length != 0)
 					res.rating = result[0].avgRating;
+				else
+					res.rating = 0;
 				res.driverId = driverId;
 				coll.find({
 					driverId : driverId

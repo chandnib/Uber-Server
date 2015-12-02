@@ -128,7 +128,7 @@ exports.getDriverRating = function(msg, callback) {
 							res.rating = result[0].rating;
 						} else if (result.length > 1) {
 							for (var i = 0; i < result.length; i++) {
-								res.driverReviews.push(result[i].review);
+								res.driverReviews.push(result[i]);
 							}
 						} else if (result.length === 0) {
 							res.code = "402";
@@ -196,7 +196,7 @@ exports.getCustomerRating = function(msg, callback) {
 							res.rating = result[0].rating;
 						} else if (result.length > 1) {
 							for (var i = 0; i < result.length; i++) {
-								res.customerReviews.push(result[i].review);
+								res.customerReviews.push(result[i]);
 							}
 						} else if (result.length === 0) {
 							res.code = "402";

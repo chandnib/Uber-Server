@@ -43,7 +43,7 @@ exports.loadUnverifiedCustomers = function(msg, callback){
 	try{
 		var verifyUserQuery = "SELECT `ROW_ID`,IMAGE_URL, `FIRST_NAME`, `LAST_NAME`, `ADDRESS`, "
 			+"`CITY`, `STATE`, `ZIPCODE`, `EMAIL`, `PHONE_NUM`," 
-		+" `CREDIT_CARD_ID`, `VERIFIED` FROM `CUSTOMER` LIMIT "+ msg.currentRow	+",100;";
+		+" `CREDIT_CARD_ID`, `VERIFIED` FROM `CUSTOMER` WHERE VERIFIED = 0 OR VERIFIED = 2 LIMIT "+ msg.currentRow	+",100;";
 		var res = {};
 		mysql.fetchData(function(err,user){
 			if(!err){
@@ -197,7 +197,9 @@ exports.rejectAllCustomer = function(msg, callback){
 //changes
 exports.loadUnverifiedDrivers = function(msg, callback){
 	try{
-		var verifyUserQuery = "SELECT `ROW_ID`,IMAGE_URL, `FIRST_NAME`, `LAST_NAME`, `ADDRESS`, `CITY`, `STATE`, `ZIPCODE`, `EMAIL`, `PHONE_NUM`, `VERIFIED` FROM `DRIVER` LIMIT 100;";
+		var verifyUserQuery = "SELECT `ROW_ID`,IMAGE_URL, `FIRST_NAME`, `LAST_NAME`, `ADDRESS`, `CITY`, `STATE`, `ZIPCODE`, `EMAIL`, `PHONE_NUM`, `VERIFIED` FROM `DRIVER`  WHERE VERIFIED = 0 OR VERIFIED = 2 LIMIT ?,100;";
+		var inserts = [msg.currentDriverRow];
+		verifyUserQuery = mysql.formatSQLStatment(verifyUserQuery,inserts)
 		var res = {};
 		mysql.fetchData(function(err,user){
 			if(!err){

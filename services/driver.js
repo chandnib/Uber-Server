@@ -70,6 +70,18 @@ exports.addDriver = function(msg, callback) {
 								+ msg.CARCOLOR
 								+ "' AND YEAR = '"
 								+ msg.CARYEAR + "';";*/
+							var checkUserQuery = "SELECT EMAIL FROM CUSTOMER WHERE EMAIL = ?;"
+								var inserts = [msg.EMAIL];
+							checkUserQuery = mysql.formatSQLStatment(checkUserQuery,inserts);
+								mysql.fetchData(function(err,user){
+									if(!err){
+										if(user != null){
+											res.code = "401";
+											res.err  = "User already in system";
+											callback(err, res);
+										}
+										else
+											{
 							var checkCarQuery = "SELECT ROW_ID FROM CARS WHERE CAR_MODEL = ? AND COLOR = ? AND YEAR = ? ;";
 							var inserts = [msg.CARMODEL,msg.CARCOLOR,msg.CARYEAR];
 							checkCarQuery = mysql.formatSQLStatment(checkCarQuery,inserts);
@@ -162,7 +174,9 @@ exports.addDriver = function(msg, callback) {
 											callback(err, res);
 										}
 									}, checkCarQuery);
-
+											}
+									}
+					},checkUserQuery);
 						}
 					}, insertCarQuery);
 	} catch (e) {

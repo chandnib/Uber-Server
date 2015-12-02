@@ -61,7 +61,18 @@ exports.insertUser = function(msg, callback){
 		mysql.fetchData(function(err,user){
 			if(!err)
 			{
-				console.log("about to find the credit card id with: " + fullName);
+				var checkUserQuery = "SELECT EMAIL FROM CUSTOMER WHERE EMAIL = ?;"
+					var inserts = [msg.EMAIL];
+				checkUserQuery = mysql.formatSQLStatment(checkUserQuery,inserts);
+					mysql.fetchData(function(err,user){
+						if(!err){
+							if(user != null){
+								res.code = "401";
+								res.err  = "User already in system";
+								callback(err, res);
+							}
+							else
+								{
 				var checkCreditQuery = "SELECT ROW_ID FROM CREDIT_CARDS WHERE CARD_HOLDER_NAME = ?;"
 				var inserts = [fullName];
 				checkCreditQuery = mysql.formatSQLStatment(checkCreditQuery,inserts);
@@ -99,7 +110,7 @@ exports.insertUser = function(msg, callback){
 							},insertCustQuery);
 
 						}else{
-							//User Not Found so added to the system
+							//User Found so added to the system
 							res.code = "401";
 							res.err = err;
 							callback(err, res);
@@ -113,6 +124,9 @@ exports.insertUser = function(msg, callback){
 				},checkCreditQuery);
 
 
+			}
+						}
+		},checkUserQuery);
 			}
 		},insertCreditQuery);
 	}catch(e){

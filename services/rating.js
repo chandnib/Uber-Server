@@ -124,7 +124,7 @@ exports.getDriverRating = function(msg, callback) {
 						console.log("result is" + JSON.stringify(result));
 						res.code = "200";
 						if (result.length === 1) {
-							res.driverReviews.push(result[0].review);
+							res.driverReviews.push(result[0]);
 							res.rating = result[0].rating;
 						} else if (result.length > 1) {
 							for (var i = 0; i < result.length; i++) {
@@ -192,7 +192,7 @@ exports.getCustomerRating = function(msg, callback) {
 						console.log("result is" + JSON.stringify(result));
 						res.code = "200";
 						if (result.length === 1) {
-							res.customerReviews.push(result[0].review);
+							res.customerReviews.push(result[0]);
 							res.rating = result[0].rating;
 						} else if (result.length > 1) {
 							for (var i = 0; i < result.length; i++) {

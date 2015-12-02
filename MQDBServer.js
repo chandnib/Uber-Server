@@ -334,7 +334,46 @@ connection.on('ready', function() {
 		});
 		console.log("searchBill Queue Created!!! and listening to the Queue!");
 	});
+	
+	//Search Customer for Admin
+	connection.queue('searchCustomer', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("searchCustomer => Message: "+JSON.stringify(message));
+			util.log("searchCustomer => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.searchCustomer(message, function(err,res){
+				console.log("searchCustomer Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("searchCustomer Queue Created!!! and listening to the Queue!");
+	});
+	
+	//Search Driver for Admin
+	connection.queue('searchDriver', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("searchDriver => Message: "+JSON.stringify(message));
+			util.log("searchDriver => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.searchDriver(message, function(err,res){
+				console.log("searchDriver Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("searchDriver Queue Created!!! and listening to the Queue!");
+	});
 });
+
+
+
 
     connection1.on('ready', function() {
     	connection1.queue('updateCustomer', function(q){
@@ -369,6 +408,23 @@ connection.on('ready', function() {
     			});
     		});
     		console.log("deleteCustomer Queue Created!!! and listening to the Queue!");
+    	});
+    	
+    	connection1.queue('getCreditCardInfo', function(q){
+    		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+    			util.log(util.format( deliveryInfo.routingKey, message));
+    			util.log("Message: "+JSON.stringify(message));
+    			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+    			customer.getCreditCardInfo(message, function(err,res){
+    				console.log("verifyUser Response : " + JSON.stringify(res));
+    				connection1.publish(messageHeader.replyTo, res, {
+    					contentType:'application/json',
+    					contentEncoding:'utf-8',
+    					correlationId:messageHeader.correlationId
+    				});
+    			});
+    		});
+    		console.log("getCreditCardInfo Queue Created!!! and listening to the Queue!");
     	});
     	
     		connection1.queue('verifyCustomer', function(q){
@@ -970,23 +1026,6 @@ connection2.on('ready', function() {
 		console.log("aboutDriverUser Queue Created!!! and listening to the Queue!");
 	});
 	
-	connection2.queue('getDriverVideoLink', function(q){
-		q.subscribe(function(message, header, deliveryInfo, messageHeader){
-			util.log(util.format( deliveryInfo.routingKey, message));
-			util.log("Message: "+JSON.stringify(message));
-			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
-			driver.getDriverVideoLink(message, function(err,res){
-				console.log("getDriverVideoLink Response : " + JSON.stringify(res));
-				connection2.publish(messageHeader.replyTo, res, {
-					contentType:'application/json',
-					contentEncoding:'utf-8',
-					correlationId:messageHeader.correlationId
-				});
-			});
-		});
-		console.log("getDriverVideoLink Queue Created!!! and listening to the Queue!");
-	});
-	
 	connection2.queue('deleteDriver', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -1052,24 +1091,7 @@ connection2.on('ready', function() {
 				});
 			});
 		});
-		console.log("uploadProfilePicDriver Queue Created!!! and listening to the Queue!");
-	});
-	
-	connection2.queue('uploadDriverVideo', function(q){
-		q.subscribe(function(message, header, deliveryInfo, messageHeader){
-			util.log(util.format( deliveryInfo.routingKey, message));
-			util.log("uploadProfilePicDriver Message: "+JSON.stringify(message));
-			util.log(" uploadProfilePicDriver DeliveryInfo: "+JSON.stringify(deliveryInfo));
-			driver.uploadDriverVideo(message, function(err,res){
-				console.log("uploadProfilePicDriver Response : " + JSON.stringify(res));
-				connection2.publish(messageHeader.replyTo, res, {
-					contentType:'application/json',
-					contentEncoding:'utf-8',
-					correlationId:messageHeader.correlationId
-				});
-			});
-		});
-		console.log("uploadDriverVideo Queue Created!!! and listening to the Queue!");
+		console.log("addDriver Queue Created!!! and listening to the Queue!");
 	});
 	
 	connection2.queue('CreateDrivers', function(q){
@@ -1279,6 +1301,42 @@ connection3.on('ready', function() {
 		});
 		console.log("getCustomerTripSummary Queue Created!!! and listening to the Queue!");
 	});
+	
+	
+	connection3.queue('uber_getCustomerOngoingRides_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			rides.handle_request_getCustomerOngoingRides(message, function(err,res){
+				console.log("getCustomerOngoingRides Response : " + JSON.stringify(res));
+				connection3.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("getOngoingRides Queue Created!!! and listening to the Queue!");
+	});
+	
+	connection3.queue('uber_getDriverOngoingRides_queue', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			rides.handle_request_getDriverOngoingRides(message, function(err,res){
+				console.log("getDriverOngoingRides Response : " + JSON.stringify(res));
+				connection3.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("getDriverOngoingRides Queue Created!!! and listening to the Queue!");
+	});
+	
 	
 });
 

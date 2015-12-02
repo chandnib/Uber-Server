@@ -251,9 +251,9 @@ exports.handle_request_cancelRide = function(msg,callback)
 				res.code = 200;
 				res.status = 'CA';
 				
-				var setDriverStatus = "UPDATE DRIVER_LOCATION SET ?? = ? where ?? = ?;";
-				inserts = ["STATUS",driver_status,"driver_id",driver_id];
-				setDriverStatus = mysql.formatSQLStatment(setDriverStatus,inserts);	
+				var setDriverStatus = "UPDATE DRIVER_LOCATION SET LONGITUDE = (SELECT DROPOFF_LONGITUDE FROM  RIDES WHERE ROW_ID = " + ride_id + ") ,LATITUDE = (SELECT DROPOFF_LATITUDE FROM  RIDES WHERE ROW_ID = " + ride_id + ") , STATUS = '" + driver_status + "' WHERE DRIVER_ID = " + driver_id + ";" ;
+//				inserts = ["STATUS",driver_status,"driver_id",driver_id];
+//				setDriverStatus = mysql.formatSQLStatment(setDriverStatus,inserts);	
 				console.log("query is:" + setDriverStatus);
 				
 				mysql.fetchData(function(err, results_driver_status) {
@@ -289,7 +289,7 @@ exports.handle_request_endRide = function(msg,callback)
 	var driver_status = msg.driver_status;
 	var driver_id = msg.driver_id;
 	
-	var endRide = "UPDATE ?? SET ?? = ? , ?? = NOW() WHERE ?? = ? AND ?? = ?;";
+	var setDriverStatus = "UPDATE DRIVER_LOCATION SET LONGITUDE = (SELECT DROPOFF_LONGITUDE FROM  RIDES WHERE ROW_ID = " + ride_id + ") ,LATITUDE = (SELECT DROPOFF_LATITUDE FROM  RIDES WHERE ROW_ID = " + ride_id + ") , STATUS = '" + driver_status + "' WHERE DRIVER_ID = " + driver_id + ";" ;
 	var inserts = ["RIDES","STATUS",'E',"RIDE_END_TIME","ROW_ID",ride_id,"RIDE_END_TIME",'0000-00-00 00:00:00'];
 	endRide = mysql.formatSQLStatment(endRide,inserts);
 	
@@ -406,9 +406,10 @@ exports.handle_request_getCustomerTripSummary = function(msg,callback)
 	console.log("inside handle_request_getCustomerTripSummary" + msg.customer_id);
 	var customer_id = msg.customer_id;
 	
-	var getCustomerTripSummary = "SELECT R.CUSTOMER_ID, R.STATUS, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDEID, R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE,	B.BILL_AMOUNT AS FARE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DESTINATION, TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME, RIGHT(CC.CARD_NUM,4) AS PAYMENT FROM CUSTOMER C, RIDES R, DRIVER D, BILLING B, CREDIT_CARDS CC WHERE R.CUSTOMER_ID = ? AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.CUSTOMER_ID = B.CUSTOMER_ID AND R.DRIVER_ID = B.DRIVER_ID AND  C.CREDIT_CARD_ID = CC.ROW_ID;";
-	var inserts = [customer_id];
-	getCustomerTripSummary = mysql.formatSQLStatment(getCustomerTripSummary,inserts);
+
+    var getCustomerTripSummary = "SELECT R.CUSTOMER_ID, R.STATUS, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDE_ID, R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE,B.BILL_AMOUNT AS FARE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DESTINATION, TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME, RIGHT(CC.CARD_NUM,4) AS PAYMENT FROM CUSTOMER C, RIDES R, DRIVER D, BILLING B, CREDIT_CARDS CC WHERE R.CUSTOMER_ID = " + customer_id + " AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.CUSTOMER_ID = B.CUSTOMER_ID AND R.DRIVER_ID = B.DRIVER_ID AND R.DRIVER_ID = D.ROW_ID AND B.RIDE_ID = R.ROW_ID AND C.CREDIT_CARD_ID = CC.ROW_ID AND R.STATUS = 'E' UNION SELECT R.CUSTOMER_ID, R.STATUS, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDE_ID,R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE, 0.00 AS FARE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DESTINATION,TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME ,RIGHT(CC.CARD_NUM,4) AS PAYMENT FROM CUSTOMER C, RIDES R, DRIVER D, BILLING B, CREDIT_CARDS CC WHERE R.CUSTOMER_ID = " + customer_id + " AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND C.CREDIT_CARD_ID = CC.ROW_ID AND R.STATUS != 'E';";
+//	var inserts = [customer_id];
+//	getCustomerTripSummary = mysql.formatSQLStatment(getCustomerTripSummary,inserts);
 			
 			
 	console.log("query is:" + getCustomerTripSummary);
@@ -438,9 +439,9 @@ exports.handle_request_getDriverTripSummary = function(msg,callback)
 	console.log("inside handle_request_getDriverTripSummary" + msg.customer_id);
 	var driver_id = msg.driver_id;
 	
-	var getDriverTripSummary = "SELECT R.CUSTOMER_ID, R.STATUS, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDE_ID, R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE,	B.BILL_AMOUNT AS FARE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DROPOFF_LOCATION, TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME, RIGHT(CC.CARD_NUM,4) AS PAYMENT FROM CUSTOMER C, RIDES R, DRIVER D, BILLING B, CREDIT_CARDS CC WHERE R.DRIVER_ID = ? AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.CUSTOMER_ID = B.CUSTOMER_ID AND R.DRIVER_ID = B.DRIVER_ID AND C.CREDIT_CARD_ID = CC.ROW_ID;";
-	var inserts = [driver_id];
-	getDriverTripSummary = mysql.formatSQLStatment(getDriverTripSummary,inserts);
+	var getDriverTripSummary = "SELECT R.CUSTOMER_ID, R.STATUS, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDE_ID, R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE,B.BILL_AMOUNT AS FARE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DESTINATION, TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME, RIGHT(CC.CARD_NUM,4) AS PAYMENT FROM CUSTOMER C, RIDES R, DRIVER D, BILLING B, CREDIT_CARDS CC WHERE R.DRIVER_ID = " + driver_id + " AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.CUSTOMER_ID = B.CUSTOMER_ID AND R.DRIVER_ID = B.DRIVER_ID AND R.DRIVER_ID = D.ROW_ID AND B.RIDE_ID = R.ROW_ID AND C.CREDIT_CARD_ID = CC.ROW_ID AND R.STATUS = 'E' UNION SELECT R.CUSTOMER_ID, R.STATUS, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDE_ID,R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE, 0.00 AS FARE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DESTINATION,TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME ,RIGHT(CC.CARD_NUM,4) AS PAYMENT FROM CUSTOMER C, RIDES R, DRIVER D, BILLING B, CREDIT_CARDS CC WHERE R.DRIVER_ID = " + driver_id + " AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND C.CREDIT_CARD_ID = CC.ROW_ID AND R.STATUS != 'E';";
+//	var inserts = [driver_id];
+//	getDriverTripSummary = mysql.formatSQLStatment(getDriverTripSummary,inserts);
 	
 	
 	console.log("query is:" + getDriverTripSummary);
@@ -448,7 +449,7 @@ exports.handle_request_getDriverTripSummary = function(msg,callback)
 	mysql.fetchData(function(err, results) {
 		if (err) {
 			res.code = 401;
-			res.value = "cannot fetch customer trip summary";
+			res.value = "cannot fetch DRIVER trip summary";
 //			res.err  = err;
 			callback(err, res);
 		} else {
@@ -461,5 +462,69 @@ exports.handle_request_getDriverTripSummary = function(msg,callback)
 	}, getDriverTripSummary);
 	}catch(e){
 		console.log("getDriverTripSummary : Error : " + e);
+	}
+};
+
+exports.handle_request_getCustomerOngoingRides = function(msg,callback)
+{
+	try{
+	var res= {};
+	console.log("inside handle_request_getCustomerOngoingRides" + msg.custmer_id);
+	var customer_id = msg.custmer_id;
+	
+	var getCustomerOngoingRide = "SELECT R.CUSTOMER_ID, R.STATUS, R.DRIVER_ID, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDE_ID, R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DESTINATION, TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME  FROM CUSTOMER C, RIDES R, DRIVER D  WHERE R.CUSTOMER_ID = " + customer_id + "AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.DRIVER_ID = D.ROW_ID  AND R.STATUS IN ('S','CR');" ;
+//	var inserts = [customer_id];
+//	getCustomerOngoingRide = mysql.formatSQLStatment(getCustomerOngoingRide,inserts);
+	
+	console.log("query is:" + getCustomerOngoingRide);
+
+	mysql.fetchData(function(err, results) {
+		if (err) {
+			res.code = 401;
+			res.value = "cannot fetch customer ongoing ride";
+//			res.err  = err;
+			callback(err, res);
+		} else {
+			console.log("RESULTS" + JSON.stringify(results));
+			res.code = 200;
+			res.value = results;
+			console.log("response object : " + JSON.stringify(res));
+			callback(null, res);
+		}
+	}, getCustomerOngoingRide);
+	}catch(e){
+		console.log("getCustomerOngoingRide : Error : " + e);
+	}
+};
+
+exports.handle_request_getDriverOngoingRides = function(msg,callback)
+{
+	try{
+	var res= {};
+	console.log("inside handle_request_getDriverOngoingRides" + msg.custmer_id);
+	var driver_id = msg.driver_id;
+	
+	var getDriverOngoingRides = "SELECT R.CUSTOMER_ID, R.STATUS, R.DRIVER_ID, C.FIRST_NAME AS CUSTOMER_FIRST_NAME, R.ROW_ID AS RIDE_ID, R.PICKUP_LOCATION, D.FIRST_NAME AS DRIVER, DATE_FORMAT(R.RIDE_START_TIME,'%m-%d-%y') AS PICKUP_DATE, 'UberX' AS CAR, R.PICKUP_LOCATION AS SOURCE , R.DROPOFF_LOCATION AS DESTINATION, TIME(R.RIDE_START_TIME) AS PICKUPTIME, TIME(R.RIDE_END_TIME) AS  DROPOFFTIME  FROM CUSTOMER C, RIDES R, DRIVER D  WHERE R.DRIVER_ID = ? AND R.CUSTOMER_ID = C.ROW_ID AND R.DRIVER_ID = D.ROW_ID AND R.DRIVER_ID = D.ROW_ID  AND R.STATUS IN ('S','CR');" ;
+	var inserts = [driver_id];
+	getDriverOngoingRides = mysql.formatSQLStatment(getDriverOngoingRides,inserts);
+	
+	console.log("query is:" + getDriverOngoingRides);
+
+	mysql.fetchData(function(err, results) {
+		if (err) {
+			res.code = 401;
+			res.value = "cannot fetch driver ongoing ride";
+//			res.err  = err;
+			callback(err, res);
+		} else {
+			console.log("RESULTS" + JSON.stringify(results));
+			res.code = 200;
+			res.value = results;
+			console.log("response object : " + JSON.stringify(res));
+			callback(null, res);
+		}
+	}, getDriverOngoingRides);
+	}catch(e){
+		console.log("getDriverOngoingRides : Error : " + e);
 	}
 };

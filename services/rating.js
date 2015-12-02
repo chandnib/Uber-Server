@@ -7,10 +7,10 @@ var ObjectId = require('mongodb').ObjectID;
 
 exports.saveCustomerRating = function(msg, callback) {
 	var res = {};
-	var customerId = msg.customerId;
-	var rideId = msg.rideId;
-	var driverId = msg.driverId;
-	var rating = msg.rating;
+	var customerId = parseInt(msg.customerId);
+	var rideId = parseInt(msg.rideId);
+	var driverId = parseInt(msg.driverId);
+	var rating = Number(msg.rating);
 	var review = msg.review;
 	var json_responses;
 
@@ -45,10 +45,10 @@ exports.saveCustomerRating = function(msg, callback) {
 
 exports.saveDriverRating = function(msg, callback) {
 	var res = {};
-	var customerId = msg.customerId;
-	var rideId = msg.rideId;
-	var driverId = msg.driverId;
-	var rating = msg.rating;
+	var customerId = parseInt(msg.customerId);
+	var rideId = parseInt(msg.rideId);
+	var driverId = parseInt(msg.driverId);
+	var rating = Number(msg.rating);
 	var review = msg.review;
 	var json_responses;
 
@@ -110,6 +110,8 @@ exports.getDriverRating = function(msg, callback) {
 				console.log("console.log(result);" + JSON.stringify(result));
 				if (result.length != 0)
 					res.rating = result[0].avgRating;
+				else
+					res.rating = 0;
 				res.driverId = driverId;
 				coll.find({
 					driverId : driverId
@@ -122,11 +124,11 @@ exports.getDriverRating = function(msg, callback) {
 						console.log("result is" + JSON.stringify(result));
 						res.code = "200";
 						if (result.length === 1) {
-							res.driverReviews.push(result[0].review);
+							res.driverReviews.push(result[0]);
 							res.rating = result[0].rating;
 						} else if (result.length > 1) {
 							for (var i = 0; i < result.length; i++) {
-								res.driverReviews.push(result[0].review);
+								res.driverReviews.push(result[i]);
 							}
 						} else if (result.length === 0) {
 							res.code = "402";
@@ -190,11 +192,11 @@ exports.getCustomerRating = function(msg, callback) {
 						console.log("result is" + JSON.stringify(result));
 						res.code = "200";
 						if (result.length === 1) {
-							res.customerReviews.push(result[0].review);
+							res.customerReviews.push(result[0]);
 							res.rating = result[0].rating;
 						} else if (result.length > 1) {
 							for (var i = 0; i < result.length; i++) {
-								res.customerReviews.push(result[0].review);
+								res.customerReviews.push(result[i]);
 							}
 						} else if (result.length === 0) {
 							res.code = "402";

@@ -549,11 +549,11 @@ exports.searchBill = function(msg, callback) {
 	SearchBillQuery = "SELECT B.*,D.FIRST_NAME AS DFIRSTNAME,D.LAST_NAME AS DLASTNAME,C.FIRST_NAME AS CFIRSTNAME,C.LAST_NAME AS CLASTNAME FROM DRIVER AS D, CUSTOMER AS C, BILLING AS B WHERE B.DRIVER_ID = D.ROW_ID AND B.CUSTOMER_ID = C.ROW_ID AND BILL_DATE < ? and BILL_DATE > ?";
 	inserts.push(toDate);
 	inserts.push(fromDate);
-	if (undefined != custEmailId) {
+	if (undefined != custEmailId || null != custEmailId) {
 		SearchBillQuery += "AND C.EMAIL = ?"
 		inserts.push(custEmailId);
 	}
-	if (undefined != driverEmailId) {
+	if (undefined != driverEmailId || null != driverEmailId) {
 		SearchBillQuery += "AND D.EMAIL = ?"
 		inserts.push(driverEmailId);
 	}

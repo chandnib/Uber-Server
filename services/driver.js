@@ -70,12 +70,14 @@ exports.addDriver = function(msg, callback) {
 								+ msg.CARCOLOR
 								+ "' AND YEAR = '"
 								+ msg.CARYEAR + "';";*/
-							var checkUserQuery = "SELECT EMAIL FROM CUSTOMER WHERE EMAIL = ?;"
+							var checkUserQuery = "SELECT EMAIL FROM DRIVER WHERE EMAIL = ?;"
 								var inserts = [msg.EMAIL];
 							checkUserQuery = mysql.formatSQLStatment(checkUserQuery,inserts);
 								mysql.fetchData(function(err,user){
 									if(!err){
-										if(user != null){
+										if(user[0] != null){
+											console.log("user[0]: "+ user[0].EMAIL);
+											console.log("msg: "+ user[0].EMAIL);
 											if(user[0].EMAIL == msg.EMAIL)
 											{
 										res.code = "401";

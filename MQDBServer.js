@@ -569,6 +569,23 @@ connection.on('ready', function() {
     		console.log("deleteDriver Queue Created!!! and listening to the Queue!");
     	});
     	
+    	connection2.queue('getDriverVideoLink', function(q){
+			q.subscribe(function(message, header, deliveryInfo, messageHeader){
+				util.log(util.format( deliveryInfo.routingKey, message));
+				util.log("Message: "+JSON.stringify(message));
+				util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+				driver.getDriverVideoLink(message, function(err,res){
+					console.log("getDriverVideoLink Response : " + JSON.stringify(res));
+					connection2.publish(messageHeader.replyTo, res, {
+						contentType:'application/json',
+						contentEncoding:'utf-8',
+						correlationId:messageHeader.correlationId
+					});
+				});
+			});
+			console.log("getDriverVideoLink Queue Created!!! and listening to the Queue!");
+    	});
+    	
     	connection2.queue('updateDriver', function(q){
     		q.subscribe(function(message, header, deliveryInfo, messageHeader){
     			util.log(util.format( deliveryInfo.routingKey, message));
@@ -1026,13 +1043,13 @@ connection2.on('ready', function() {
 		console.log("aboutDriverUser Queue Created!!! and listening to the Queue!");
 	});
 	
-	connection2.queue('deleteDriver', function(q){
+	connection2.queue('uploadDriverVideo', function(q){
 		q.subscribe(function(message, header, deliveryInfo, messageHeader){
 			util.log(util.format( deliveryInfo.routingKey, message));
-			util.log("Message: "+JSON.stringify(message));
-			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
-			driver.deleteDriver(message, function(err,res){
-				console.log("deleteDriver Response : " + JSON.stringify(res));
+			util.log("uploadDriverVideo Message: "+JSON.stringify(message));
+			util.log("uploadDriverVideo: "+JSON.stringify(deliveryInfo));
+			driver.uploadDriverVideo(message, function(err,res){
+				console.log("uploadDriverVideo Response : " + JSON.stringify(res));
 				connection2.publish(messageHeader.replyTo, res, {
 					contentType:'application/json',
 					contentEncoding:'utf-8',
@@ -1040,7 +1057,7 @@ connection2.on('ready', function() {
 				});
 			});
 		});
-		console.log("deleteDriver Queue Created!!! and listening to the Queue!");
+		console.log("uploadDriverVideo Queue Created!!! and listening to the Queue!");
 	});
 	
 	connection2.queue('updateDriver', function(q){

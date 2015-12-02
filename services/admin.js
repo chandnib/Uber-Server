@@ -443,7 +443,7 @@ exports.revenueStats = function(msg, callback){
 
 exports.totalrideStats = function(msg, callback){
 	try{
-		var totalrideStatsQuery = "SELECT COUNT(ROW_ID) AS AREACOUNT FROM RIDES WHERE ACOS( SIN( RADIANS( PICKUP_LATITUDE ) ) * SIN( RADIANS( " + msg.lat + ") ) + COS( RADIANS( PICKUP_LATITUDE ) ) * COS( RADIANS( " + msg.lat + " )) * COS( RADIANS( PICKUP_LONGITUDE ) - RADIANS( " + msg.long + " )) ) * 6380 < 4.828 AND STATUS = 'E' AND DATE(RIDE_START_TIME) = '" + msg.startdate + "'";
+		var totalrideStatsQuery = "SELECT COUNT(ROW_ID) AS AREACOUNT FROM RIDES WHERE ACOS( SIN( RADIANS( PICKUP_LATITUDE ) ) * SIN( RADIANS( " + msg.lat + ") ) + COS( RADIANS( PICKUP_LATITUDE ) ) * COS( RADIANS( " + msg.lat + " )) * COS( RADIANS( PICKUP_LONGITUDE ) - RADIANS( " + msg.long + " )) ) * 6380 < 4.828 AND STATUS = 'E' AND DATE(RIDE_START_TIME) BETWEEN '" + msg.startdate + "' AND '" + msg.enddate + "'";
 		var res = {};
 		mysql.fetchData(function(err,user){
 			if(!err){
@@ -472,7 +472,7 @@ exports.totalrideStats = function(msg, callback){
 
 exports.cutomerrideStats = function(msg, callback){
 	try{
-		var cutomerrideStatsQuery = "SELECT COUNT(ROW_ID) AS CUSTOMERCOUNT FROM RIDES WHERE ACOS( SIN( RADIANS( PICKUP_LATITUDE ) ) * SIN( RADIANS( " + msg.lat + ") ) + COS( RADIANS( PICKUP_LATITUDE ) ) * COS( RADIANS( " + msg.lat + " )) * COS( RADIANS( PICKUP_LONGITUDE ) - RADIANS( " + msg.long + " )) ) * 6380 < 4.828 AND STATUS = 'E' AND DATE(RIDE_START_TIME) = '" + msg.startdate + "' AND CUSTOMER_ID = "+ msg.Customerid;
+		var cutomerrideStatsQuery = "SELECT COUNT(ROW_ID) AS CUSTOMERCOUNT FROM RIDES WHERE ACOS( SIN( RADIANS( PICKUP_LATITUDE ) ) * SIN( RADIANS( " + msg.lat + ") ) + COS( RADIANS( PICKUP_LATITUDE ) ) * COS( RADIANS( " + msg.lat + " )) * COS( RADIANS( PICKUP_LONGITUDE ) - RADIANS( " + msg.long + " )) ) * 6380 < 4.828 AND STATUS = 'E' AND DATE(RIDE_START_TIME) BETWEEN '" + msg.startdate + "' AND '" + msg.enddate + "' AND CUSTOMER_ID = "+ msg.Customerid;
 		var res = {};
 		mysql.fetchData(function(err,user){
 			if(!err){
@@ -501,7 +501,7 @@ exports.cutomerrideStats = function(msg, callback){
 
 exports.driverrideStats = function(msg, callback){
 	try{
-		var driverrideStatsQuery = "SELECT COUNT(ROW_ID) AS DRIVERCOUNT FROM RIDES WHERE ACOS( SIN( RADIANS( PICKUP_LATITUDE ) ) * SIN( RADIANS( " + msg.lat + ") ) + COS( RADIANS( PICKUP_LATITUDE ) ) * COS( RADIANS( " + msg.lat + " )) * COS( RADIANS( PICKUP_LONGITUDE ) - RADIANS( " + msg.long + " )) ) * 6380 < 4.828 AND STATUS = 'E' AND DATE(RIDE_START_TIME) = '" + msg.startdate + "' AND DRIVER_ID = "+ msg.Driverid;
+		var driverrideStatsQuery = "SELECT COUNT(ROW_ID) AS DRIVERCOUNT FROM RIDES WHERE ACOS( SIN( RADIANS( PICKUP_LATITUDE ) ) * SIN( RADIANS( " + msg.lat + ") ) + COS( RADIANS( PICKUP_LATITUDE ) ) * COS( RADIANS( " + msg.lat + " )) * COS( RADIANS( PICKUP_LONGITUDE ) - RADIANS( " + msg.long + " )) ) * 6380 < 4.828 AND STATUS = 'E' AND DATE(RIDE_START_TIME) BETWEEN '" + msg.startdate + "' AND '" + msg.enddate + "' AND DRIVER_ID = "+ msg.Driverid;
 		var res = {};
 		mysql.fetchData(function(err,user){
 			if(!err){

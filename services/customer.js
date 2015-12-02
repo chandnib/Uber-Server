@@ -150,6 +150,35 @@ exports.deleteUser = function(msg, callback){
 	}
 };
 
+
+exports.getCreditCardInfo = function(msg, callback){
+	try{
+		var res = {};
+		var getCreditCardInfoQuery = "SELECT RIGHT(CARD_NUM,4) AS CRECARDNUM, MONTH, YEAR FROM CREDIT_CARDS WHERE ROW_ID = "+msg.creCard;
+		mysql.fetchData(function(err,user){
+			if(!err){
+				if(user != null){
+					res.code = "200";
+					res.value = user;
+					callback(null, res);
+				}else{
+					//User Not Found
+					res.code = "401";
+					res.err  = "User not found in the system";
+					callback(null, res);
+				}
+			}else{
+				//Unknown Error
+				res.code = "401";
+				res.err  = err;
+				callback(err, res);
+			}
+		},getCreditCardInfoQuery);
+	}catch(e){
+		console.log("getCreditCardInfo : Error : " + e);
+	}
+};
+
 exports.updateCustomer = function(msg,callback){
 	try{
 		/*var getUser="select * from CUSTOMER where EMAIL='"+msg.OLDEMAIL+"'";*/

@@ -66,10 +66,13 @@ exports.insertUser = function(msg, callback){
 				checkUserQuery = mysql.formatSQLStatment(checkUserQuery,inserts);
 					mysql.fetchData(function(err,user){
 						if(!err){
-							if(user != null){
+							if(user[0] != null){
+								if(user[0].EMAIL == msg.EMAIL)
+									{
 								res.code = "401";
 								res.err  = "User already in system";
 								callback(err, res);
+									}
 							}
 							else
 								{
@@ -79,7 +82,7 @@ exports.insertUser = function(msg, callback){
 				mysql.fetchData(function(err,user){
 					if(!err){
 						console.log("Credit Card ID: " + user);
-						if(user != null){
+						if(user[0] != null){
 							console.log("Credit Card ID: " + user[0].ROW_ID);
 							creditCardId = user[0].ROW_ID;
 							console.log("checking to see if credit is the same: " + creditCardId);

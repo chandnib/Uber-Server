@@ -76,9 +76,12 @@ exports.addDriver = function(msg, callback) {
 								mysql.fetchData(function(err,user){
 									if(!err){
 										if(user != null){
-											res.code = "401";
-											res.err  = "User already in system";
-											callback(err, res);
+											if(user[0].EMAIL == msg.EMAIL)
+											{
+										res.code = "401";
+										res.err  = "User already in system";
+										callback(err, res);
+											}
 										}
 										else
 											{

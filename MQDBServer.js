@@ -334,7 +334,46 @@ connection.on('ready', function() {
 		});
 		console.log("searchBill Queue Created!!! and listening to the Queue!");
 	});
+	
+	//Search Customer for Admin
+	connection.queue('searchCustomer', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("searchCustomer => Message: "+JSON.stringify(message));
+			util.log("searchCustomer => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.searchCustomer(message, function(err,res){
+				console.log("searchCustomer Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("searchCustomer Queue Created!!! and listening to the Queue!");
+	});
+	
+	//Search Driver for Admin
+	connection.queue('searchDriver', function(q){
+		q.subscribe(function(message, header, deliveryInfo, messageHeader){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("searchDriver => Message: "+JSON.stringify(message));
+			util.log("searchDriver => DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			admin.searchDriver(message, function(err,res){
+				console.log("searchDriver Response : " + JSON.stringify(res));
+				connection.publish(messageHeader.replyTo, res, {
+					contentType:'application/json',
+					contentEncoding:'utf-8',
+					correlationId:messageHeader.correlationId
+				});
+			});
+		});
+		console.log("searchDriver Queue Created!!! and listening to the Queue!");
+	});
 });
+
+
+
 
     connection1.on('ready', function() {
     	connection1.queue('updateCustomer', function(q){
